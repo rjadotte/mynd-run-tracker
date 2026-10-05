@@ -2113,5 +2113,34 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
   initCloud();
 })();
 </script>
+<style>
+/* ===== Phone readability fix: keep the light palette in dark mode, dark text in fields ===== */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #FFF8F1; --panel: #FFFFFF; --ink: #17233C; --ink-soft: #40506B; --slate: #66758F;
+    --line: rgba(23,35,60,.12); --line-strong: rgba(23,35,60,.22);
+    --clay: #E53935; --clay-soft: rgba(229,57,53,.10); --amber: #F5A623; --amber-soft: rgba(245,166,35,.14);
+    --good: #14A77A; --good-soft: rgba(20,167,122,.11); --bad: #D93025;
+  }
+}
+input, select, textarea {
+  color: #0F1A2E !important;
+  -webkit-text-fill-color: #0F1A2E;
+  caret-color: #173F8A;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  opacity: 1;
+}
+input::placeholder, textarea::placeholder {
+  color: #7A869C !important;
+  -webkit-text-fill-color: #7A869C;
+  opacity: 1;
+}
+input:-webkit-autofill {
+  -webkit-text-fill-color: #0F1A2E !important;
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+}
+</style>
 </body>
 </html>
