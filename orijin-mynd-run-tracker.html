@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MYND Fitness | Orijin Community Run Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F7F3E8;
+    --panel: #EFE9D6;
+    --ink: #333A2C;
+    --ink-soft: #5B6350;
+    --slate: #83907A;
+    --line: rgba(51,58,44,0.14);
+    --line-strong: rgba(51,58,44,0.26);
+    --clay: #CB7A47;
+    --clay-soft: rgba(203,122,71,0.14);
+    --amber: #D9A441;
+    --amber-soft: rgba(217,164,65,0.16);
+    --good: #7E9A6D;
+    --good-soft: rgba(126,154,109,0.16);
+    --bad: #C1543A;
+    --font-display: "Oswald", "Arial Narrow", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    box-sizing: border-box;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #20261B;
+      --panel: #2A311F;
+      --ink: #F1EEDD;
+      --ink-soft: #C9C6AF;
+      --slate: #9AA88A;
+      --line: rgba(241,238,221,0.14);
+      --line-strong: rgba(241,238,221,0.26);
+      --clay: #E4935F;
+      --clay-soft: rgba(228,147,95,0.18);
+      --amber: #E8BE63;
+      --amber-soft: rgba(232,190,99,0.18);
+      --good: #9DBB8C;
+      --good-soft: rgba(157,187,140,0.18);
+      --bad: #E27A5F;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #20261B;
+    --panel: #2A311F;
+    --ink: #F1EEDD;
+    --ink-soft: #C9C6AF;
+    --slate: #9AA88A;
+    --line: rgba(241,238,221,0.14);
+    --line-strong: rgba(241,238,221,0.26);
+    --clay: #E4935F;
+    --clay-soft: rgba(228,147,95,0.18);
+    --amber: #E8BE63;
+    --amber-soft: rgba(232,190,99,0.18);
+    --good: #9DBB8C;
+    --good-soft: rgba(157,187,140,0.18);
+    --bad: #E27A5F;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 400;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px 12px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+    border-bottom: 3px solid var(--good);
+    padding-bottom: 14px;
+  }
+
+  header.top h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 5vw, 40px);
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+
+  header.top .tagline {
+    font-family: var(--font-mono);
+    color: var(--slate);
+    font-size: 12px;
+    text-align: right;
+    line-height: 1.5;
+  }
+
+  /* Race countdown board */
+  .races {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    background: transparent;
+    border: none;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 900px) {
+    .races { grid-template-columns: 1fr 1fr; }
+  }
+  .race-card .race-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+    margin-top: 12px;
+    line-height: 1.5;
+  }
+  @media (max-width: 480px) {
+    .races { grid-template-columns: 1fr; }
+  }
+
+  .race-card {
+    background: var(--panel);
+    padding: 20px 22px;
+    position: relative;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 10px rgba(51,58,44,0.06);
+  }
+
+  .race-card .race-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-bottom: 2px;
+  }
+
+  .race-card .race-date {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--slate);
+    margin-bottom: 14px;
+  }
+
+  .race-card .days {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: clamp(40px, 8vw, 56px);
+    color: var(--clay);
+    line-height: 1;
+  }
+
+  .race-card .days-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 4px;
+  }
+
+  .race-card.past .days { color: var(--slate); }
+
+  /* Section shell */
+  section {
+    margin-bottom: 36px;
+  }
+
+  section > h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 18px;
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  /* Weekly schedule strip */
+  .week-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  .week-day {
+    padding: 12px 8px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    text-align: center;
+    background: var(--panel);
+  }
+  .week-day:first-child { border-left: 1px solid var(--line); }
+
+  .week-day .d-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .week-day .d-activity {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    min-height: 34px;
+  }
+
+  .week-day.today {
+    box-shadow: none;
+    background: var(--clay-soft);
+    border-color: var(--clay);
+  }
+  .week-day.today .d-name { color: var(--clay); }
+
+  /* Forms */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 28px;
+  }
+  @media (max-width: 900px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  .grid-pie {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (max-width: 480px) {
+    .grid-pie { grid-template-columns: 1fr; }
+  }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+  }
+
+  input, select, textarea {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    background: var(--panel);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: 2px solid var(--clay);
+    outline-offset: 1px;
+    border-radius: 8px;
+  }
+
+  input[type="date"] { width: 148px; }
+  input[type="number"] { width: 100px; }
+  input.time-input { width: 100px; }
+  textarea { width: 100%; min-height: 40px; resize: vertical; font-family: var(--font-display); font-size: 14px; }
+
+  .btn {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--good);
+    color: var(--bg);
+    border: 1px solid var(--good);
+    padding: 9px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+  .btn:hover { background: var(--clay); border-color: var(--clay); transform: translateY(-1px); }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    font-weight: 500;
+  }
+  .btn.ghost:hover { border-color: var(--clay); color: var(--clay); background: var(--clay-soft); }
+
+  /* Run table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--slate);
+    font-size: 11px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: 1px solid var(--line-strong); }
+  .notes-cell { font-family: var(--font-display); color: var(--ink-soft); max-width: 220px; }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+  }
+  .badge.good { color: var(--good); background: var(--good-soft); }
+  .badge.slow { color: var(--bad); background: var(--clay-soft); }
+  .badge.na { color: var(--slate); background: transparent; }
+
+  .row-del {
+    background: transparent;
+    border: none;
+    color: var(--slate);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+  .row-del:hover { color: var(--clay); }
+
+  .empty {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--slate);
+    padding: 16px 0;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) {
+    .tiles { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) {
+    .tiles { grid-template-columns: 1fr; }
+  }
+
+  .tile {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 10px rgba(51,58,44,0.06);
+  }
+  .tile .tile-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+  .tile .tile-val {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+  .tile .tile-sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+    margin-top: 4px;
+  }
+  .tile svg.tile-spark { width: 100%; height: 34px; display: block; margin-top: 8px; }
+
+  .legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .legend-row:last-child { border-bottom: none; }
+  .legend-swatch { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
+  .legend-label { color: var(--ink); flex: 1 1 auto; }
+  .legend-val { color: var(--slate); }
+
+  .table-scroll { overflow-x: auto; }
+
+  /* Weight */
+  .weight-current {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .weight-current .val {
+    font-family: var(--font-mono);
+    font-size: 34px;
+    font-weight: 600;
+  }
+  .weight-current .delta {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--slate);
+  }
+  .weight-current .delta.down { color: var(--good); }
+  .weight-current .delta.up { color: var(--bad); }
+
+  svg.spark { width: 100%; height: 90px; display: block; margin: 10px 0 4px; }
+
+  /* Pace calc */
+  .calc-result {
+    margin-top: 12px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    padding: 10px 14px;
+    background: var(--panel);
+    border-left: 3px solid var(--good);
+    border-radius: 0 10px 10px 0;
+    min-height: 20px;
+  }
+
+  .target-ref {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 10px;
+    line-height: 1.8;
+  }
+
+  footer {
+    max-width: 960px;
+    margin: 40px auto 0;
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--slate);
+    border-top: 1px solid var(--line);
+  }
+
+/* ===== Orijin Foundation-inspired friendly refresh ===== */
+:root {
+  --bg: #FFF8F1;
+  --panel: #FFFFFF;
+  --ink: #17233C;
+  --ink-soft: #40506B;
+  --slate: #66758F;
+  --line: rgba(23,35,60,.12);
+  --line-strong: rgba(23,35,60,.22);
+  --clay: #E53935;
+  --clay-soft: rgba(229,57,53,.10);
+  --amber: #F5A623;
+  --amber-soft: rgba(245,166,35,.14);
+  --good: #14A77A;
+  --good-soft: rgba(20,167,122,.11);
+  --bad: #D93025;
+  --brand-blue: #173F8A;
+  --brand-blue-soft: rgba(23,63,138,.09);
+  --brand-yellow: #FFC857;
+  --brand-coral: #F05A47;
+  --shadow: 0 10px 30px rgba(23,35,60,.08);
+  --font-display: "Trebuchet MS", "Avenir Next", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+body {
+  background:
+    radial-gradient(circle at 92% 4%, rgba(255,200,87,.22), transparent 24rem),
+    radial-gradient(circle at 4% 24%, rgba(240,90,71,.10), transparent 20rem),
+    var(--bg);
+  color: var(--ink);
+}
+
+.wrap { max-width: 1120px; padding: 26px 22px 20px; }
+
+header.top {
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 0;
+  padding: 18px 22px;
+  border-radius: 22px;
+  color: white;
+  background: linear-gradient(120deg, var(--brand-blue), #245DB8 62%, var(--brand-coral));
+  box-shadow: 0 14px 34px rgba(23,63,138,.20);
+  position: relative;
+  overflow: hidden;
+}
+header.top::after {
+  content: "";
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(255,200,87,.24);
+  right: -55px; top: -75px;
+}
+header.top h1 { font-size: clamp(28px, 5vw, 42px); letter-spacing: -.02em; position: relative; z-index: 1; }
+header.top .tagline { color: rgba(255,255,255,.88); position: relative; z-index: 1; }
+
+.races { gap: 16px; margin-bottom: 30px; }
+.race-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  overflow: hidden;
+}
+.race-card::before { content:""; display:block; height:5px; margin:-20px -20px 17px; background:linear-gradient(90deg,var(--brand-blue),var(--brand-yellow),var(--brand-coral)); }
+.race-card .days { color: var(--brand-blue); }
+.race-card .race-name { color: var(--ink); font-weight: 700; }
+.race-card .race-date, .race-card .days-label { color: var(--slate); }
+
+section { margin-bottom: 32px; }
+section > h2 {
+  font-size: 20px;
+  color: var(--brand-blue);
+  border-bottom: 0;
+  padding-bottom: 0;
+  margin-bottom: 13px;
+}
+section > h2::before { content:""; display:inline-block; width:8px; height:8px; background:var(--brand-yellow); border-radius:50%; margin:0 9px 3px 0; }
+
+.week-strip { gap: 9px; }
+.week-day {
+  background: rgba(255,255,255,.86);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(23,35,60,.05);
+}
+.week-day.today { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); border:2px solid var(--brand-coral); transform: translateY(-2px); }
+.week-day.today .d-name { color: var(--brand-coral); font-weight:700; }
+
+.grid-2 { gap: 18px; }
+
+input, select, textarea {
+  background: #fff;
+  border: 1px solid rgba(23,35,60,.18);
+  border-radius: 11px;
+  padding: 10px 12px;
+}
+input:focus, select:focus, textarea:focus { outline: 3px solid rgba(23,63,138,.16); border-color: var(--brand-blue); }
+
+.btn {
+  background: linear-gradient(135deg, var(--brand-blue), #245DB8);
+  color: #fff;
+  border: 1px solid var(--brand-blue);
+  border-radius: 999px;
+  padding: 10px 20px;
+  box-shadow: 0 5px 14px rgba(23,63,138,.16);
+}
+.btn:hover { background: linear-gradient(135deg, var(--brand-coral), #E53935); border-color: var(--brand-coral); transform: translateY(-2px); }
+.btn.ghost { background:#fff; color:var(--brand-blue); border-color:rgba(23,63,138,.22); box-shadow:none; }
+.btn.ghost:hover { background:var(--brand-blue-soft); color:var(--brand-blue); border-color:var(--brand-blue); }
+
+.tile, .calc-result {
+  background: rgba(255,255,255,.9);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.tile { padding:18px; }
+.tile:nth-child(1) { border-top:4px solid var(--good); }
+.tile:nth-child(2) { border-top:4px solid var(--brand-coral); }
+.tile:nth-child(3) { border-top:4px solid var(--brand-yellow); }
+.tile:nth-child(4) { border-top:4px solid var(--brand-blue); }
+.tile .tile-val { color:var(--brand-blue); }
+
+.table-scroll { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow-x:auto; }
+table { min-width:720px; }
+th { background:#F4F7FC; color:var(--brand-blue); padding:11px 10px; }
+td { border-bottom:1px solid var(--line); }
+.badge.good { color:var(--good); background:var(--good-soft); }
+.badge.slow { color:var(--bad); background:rgba(217,48,37,.08); }
+
+.calc-result { border-left:4px solid var(--good); padding:13px 15px; }
+
+footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
+
+@media (max-width: 600px) {
+  .wrap { padding: 14px 12px 10px; }
+  header.top { padding:18px; border-radius:18px; display:block; }
+  header.top .tagline { text-align:left; margin-top:7px; }
+  .races { gap:11px; }
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>MYND Fitness</h1>
+    <div class="tagline">Move Your Numbers Down<br>Community Training Tracker</div>
+  </header>
+
+  <div class="races" id="races"></div>
+
+  <section style="margin-bottom: 24px;">
+    <button type="button" class="btn ghost" id="exportPdfBtn">Export PDF summary</button>
+    <span id="exportStatus" style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin-left: 12px;"></span>
+  </section>
+
+  <section id="cloudSection">
+    <h2>Cloud sync</h2>
+    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 14px;">
+      Back up runs, weight, blood pressure, and bootcamp to your private Supabase SQL database. This browser keeps a local copy, so the tracker still works offline.
+    </p>
+    <div id="cloudStatus" class="calc-result" style="margin-top:0;">Not set up &mdash; data is only in this browser.</div>
+    <form id="cloudSetupForm" style="margin-top:14px;">
+      <div class="field">
+        <label for="cloudUrl">Supabase project URL</label>
+        <input type="url" id="cloudUrl" placeholder="https://xxxx.supabase.co" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="cloudKey">Anon public key</label>
+        <input type="text" id="cloudKey" placeholder="eyJhbGciOi..." autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="cloudEmail">Email</label>
+        <input type="email" id="cloudEmail" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="cloudPass">Password</label>
+        <input type="password" id="cloudPass" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn">Sign in &amp; sync</button>
+    </form>
+    <div id="cloudSignedIn" style="display:none; margin-top:14px;">
+      <button type="button" class="btn ghost" id="cloudSyncBtn">Sync now</button>
+      <button type="button" class="btn ghost" id="cloudPushBtn">Upload this browser's data</button>
+      <button type="button" class="btn ghost" id="cloudSignOutBtn">Sign out</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>This week</h2>
+    <div class="week-strip" id="weekStrip"></div>
+  </section>
+
+  <section class="grid-2">
+    <div>
+      <h2>Log a run</h2>
+      <form id="runForm">
+        <div class="field">
+          <label for="rDate">Date</label>
+          <input type="date" id="rDate" required>
+        </div>
+        <div class="field">
+          <label for="rType">Type</label>
+          <select id="rType">
+            <option value="10K">10K run</option>
+            <option value="5K">5K run</option>
+            <option value="8K">8K run</option>
+            <option value="15K">15K run</option>
+            <option value="Half Marathon">Half marathon</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="rDist">Distance (mi)</label>
+          <input type="number" id="rDist" step="0.01" min="0" required>
+        </div>
+        <div class="field">
+          <label for="rTime">Time (mm:ss or h:mm:ss)</label>
+          <input type="text" class="time-input" id="rTime" placeholder="52:30" required>
+        </div>
+        <div class="field" style="flex: 1 1 100%;">
+          <label for="rNotes">Notes</label>
+          <textarea id="rNotes" placeholder="How it felt, weather, route..."></textarea>
+        </div>
+        <button type="submit" class="btn">Save run</button>
+      </form>
+    </div>
+
+    <div>
+      <h2>Weight</h2>
+      <div class="weight-current" id="weightCurrent"></div>
+      <svg class="spark" id="weightSpark" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
+      <form id="weightForm">
+        <div class="field">
+          <label for="wDate">Date</label>
+          <input type="date" id="wDate" required>
+        </div>
+        <div class="field">
+          <label for="wVal">Weight (lb)</label>
+          <input type="number" id="wVal" step="0.1" min="0" required>
+        </div>
+        <button type="submit" class="btn ghost">Add</button>
+      </form>
+    </div>
+
+    <div>
+      <h2>Blood pressure</h2>
+      <div class="weight-current" id="bpCurrent"></div>
+      <svg class="spark" id="bpSpark" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
+      <form id="bpForm">
+        <div class="field">
+          <label for="bpDate">Date</label>
+          <input type="date" id="bpDate" required>
+        </div>
+        <div class="field">
+          <label for="bpSys">Systolic</label>
+          <input type="number" id="bpSys" step="1" min="0" style="width:80px;" required>
+        </div>
+        <div class="field">
+          <label for="bpDia">Diastolic</label>
+          <input type="number" id="bpDia" step="1" min="0" style="width:80px;" required>
+        </div>
+        <div class="field">
+          <label for="bpPulse">Pulse (bpm)</label>
+          <input type="number" id="bpPulse" step="1" min="0" style="width:80px;">
+        </div>
+        <button type="submit" class="btn ghost">Add</button>
+      </form>
+      <div class="target-ref" style="margin-top:8px;">Reference (AHA), not medical advice: Normal &lt;120/80 &middot; Elevated 120&ndash;129/&lt;80 &middot; Stage 1 130&ndash;139/80&ndash;89 &middot; Stage 2 &ge;140/&ge;90</div>
+    </div>
+  </section>
+
+  <section class="grid-2" style="grid-template-columns: 1fr 1.2fr;">
+    <div>
+      <h2>Bootcamp</h2>
+      <form id="bootcampForm">
+        <div class="field">
+          <label for="bcDate">Date</label>
+          <input type="date" id="bcDate" required>
+        </div>
+        <div class="field">
+          <label for="bcDuration">Duration (hours)</label>
+          <input type="number" id="bcDuration" step="0.05" min="0" placeholder="1.5" style="width:100px;" required>
+        </div>
+        <div class="field">
+          <label for="bcCalories">Calories</label>
+          <input type="number" id="bcCalories" step="1" min="0" style="width:100px;" required>
+        </div>
+        <button type="submit" class="btn ghost">Save session</button>
+      </form>
+    </div>
+    <div>
+      <div class="weight-current" id="bootcampCurrent"></div>
+      <svg class="spark" id="bootcampSpark" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
+      <div class="table-scroll" style="margin-top: 10px;">
+        <table>
+          <thead><tr><th>Date</th><th>Duration</th><th>Calories</th><th></th></tr></thead>
+          <tbody id="bootcampBody"></tbody>
+        </table>
+      </div>
+      <div class="empty" id="bootcampEmpty" style="display:none;">No bootcamp sessions logged yet.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run history</h2>
+    <div class="table-scroll">
+      <table id="runTable">
+        <thead>
+          <tr>
+            <th>Date</th><th>Type</th><th>Dist</th><th>Time</th><th>Pace</th><th>vs target</th><th>Notes</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="runBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="runEmpty" style="display:none;">No runs logged yet. Add your first one above.</div>
+    <div id="runShowMoreWrap" style="margin-top: 10px; display:none;">
+      <button type="button" class="btn ghost" id="runShowMoreBtn"></button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Run breakdown</h2>
+    <div class="grid-pie">
+      <svg id="pieChart" viewBox="0 0 220 220" style="width: 220px; height: 220px; display: block;"></svg>
+      <div id="pieLegend" style="font-family: var(--font-mono); font-size: 13px;"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Overhaul progress</h2>
+    <div class="tiles" id="progressTiles"></div>
+  </section>
+
+  <section>
+    <h2>Import from Apple Health</h2>
+    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 14px;">
+      Load runs, weight, and blood pressure history exported from Apple Health. Files stay in your browser &mdash; nothing is uploaded anywhere.
+    </p>
+    <form id="importForm">
+      <div class="field">
+        <label for="importRuns">Runs CSV (date, distance_mi, duration_min)</label>
+        <input type="file" id="importRuns" accept=".csv">
+      </div>
+      <div class="field">
+        <label for="importWeights">Weights CSV (date, weight_lb)</label>
+        <input type="file" id="importWeights" accept=".csv">
+      </div>
+      <div class="field">
+        <label for="importBP">Blood pressure CSV (date, systolic, diastolic, pulse optional)</label>
+        <input type="file" id="importBP" accept=".csv">
+      </div>
+      <button type="submit" class="btn ghost">Import</button>
+    </form>
+    <div class="calc-result" id="importResult" style="display:none;"></div>
+  </section>
+
+  <section>
+    <h2>Pace calculator</h2>
+    <form id="calcForm">
+      <div class="field">
+        <label for="cDist">Distance (mi)</label>
+        <input type="number" id="cDist" step="0.01" min="0" placeholder="6.2">
+      </div>
+      <div class="field">
+        <label for="cTime">Finish time (mm:ss or h:mm:ss)</label>
+        <input type="text" class="time-input" id="cTime" placeholder="55:00">
+      </div>
+      <button type="button" class="btn ghost" id="calcPaceBtn">Get pace</button>
+      <div class="field">
+        <label for="cPace">or target pace (min/mi)</label>
+        <input type="text" class="time-input" id="cPace" placeholder="9:15">
+      </div>
+      <button type="button" class="btn ghost" id="calcTimeBtn">Get finish time</button>
+    </form>
+    <div class="calc-result" id="calcResult">Enter distance + time, or distance + pace.</div>
+    <div class="target-ref">10K target pace: 9:00&ndash;9:30 /mi &nbsp;&middot;&nbsp; 5K target pace: 8:45&ndash;9:15 /mi &nbsp;&middot;&nbsp; 8K target pace: 8:55&ndash;9:20 /mi</div>
+  </section>
+
+</div>
+
+<footer id="storageFooter">Data is stored privately in this browser only.</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var RUNS_KEY = "runlog.runs.v1";
+  var WEIGHT_KEY = "runlog.weights.v1";
+
+  var TARGETS = {
+    "10K": [9 * 60, 9 * 60 + 30],
+    "5K": [8 * 60 + 45, 9 * 60 + 15],
+    "8K": [8 * 60 + 55, 9 * 60 + 20]
+  };
+
+  var RACES = [
+    { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds" },
+    { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena" },
+    { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park" },
+    { name: "Publix Gasparilla Distance Classic 8K", date: "2027-02-21", time: "9:15 AM (confirm 2027 schedule)", place: "Platt St & Bayshore Blvd" }
+  ].sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+  var WEEK = [
+    { name: "Mon", activity: "Rest / mobility" },
+    { name: "Tue", activity: "10K run" },
+    { name: "Wed", activity: "Rest, stretch + weights" },
+    { name: "Thu", activity: "Rest, stretch + weights" },
+    { name: "Fri", activity: "5K run" },
+    { name: "Sat", activity: "Bootcamp" },
+    { name: "Sun", activity: "Rest" }
+  ];
+
+  function loadJSON(key) {
+    try {
+      var raw = localStorage.getItem(key);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveJSON(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) {
+      console.error("Could not save", key, e);
+    }
+    queueCloudPush(key, data);
+  }
+
+  // ---------- Cloud sync (Supabase SQL database) ----------
+  // localStorage stays the working copy; every save is mirrored to Supabase.
+  var CLOUD_CFG_KEY = "mynd.cloud.config.v1";
+  var CLOUD_DIRTY_KEY = "mynd.cloud.dirty.v1";
+  var SUPABASE_SDK = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  var sbClient = null;
+  var cloudUser = null;
+  var cloudApplying = false;
+  var cloudTimers = {};
+  var cloudPending = 0;
+
+  function cloudKind(key) {
+    if (key === "runlog.runs.v1") return "runs";
+    if (key === "runlog.weights.v1") return "weights";
+    if (key === "runlog.bp.v1") return "bp";
+    if (key === "runlog.bootcamp.v1") return "bootcamp";
+    return null;
+  }
+
+  function cloudCfg() {
+    try { return JSON.parse(localStorage.getItem(CLOUD_CFG_KEY) || "null"); } catch (e) { return null; }
+  }
+  function setCloudCfg(cfg) {
+    try { localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cfg)); } catch (e) { /* ignore */ }
+  }
+  function setDirty(v) {
+    try { if (v) localStorage.setItem(CLOUD_DIRTY_KEY, "1"); else localStorage.removeItem(CLOUD_DIRTY_KEY); } catch (e) { /* ignore */ }
+  }
+  function isDirty() {
+    try { return localStorage.getItem(CLOUD_DIRTY_KEY) === "1"; } catch (e) { return false; }
+  }
+  function setCloudStatus(msg) {
+    var el = document.getElementById("cloudStatus");
+    if (el) el.textContent = msg;
+  }
+  function syncedMsg() {
+    return "Synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) +
+      (cloudUser && cloudUser.email ? " · " + cloudUser.email : "");
+  }
+  function hasPendingTimers() {
+    for (var k in cloudTimers) { if (cloudTimers[k]) return true; }
+    return false;
+  }
+
+  function queueCloudPush(key, data) {
+    if (cloudApplying) return;
+    var kind = cloudKind(key);
+    if (!kind || !cloudCfg()) return;
+    setDirty(true);
+    if (!sbClient || !cloudUser) {
+      setCloudStatus("Saved in this browser — sign in to sync.");
+      return;
+    }
+    clearTimeout(cloudTimers[kind]);
+    cloudTimers[kind] = setTimeout(function () {
+      cloudTimers[kind] = null;
+      pushKind(kind, data).catch(function () { /* status already set */ });
+    }, 600);
+  }
+
+  function pushKind(kind, data) {
+    cloudPending++;
+    setCloudStatus("Syncing…");
+    return sbClient.rpc("replace_dataset", { p_kind: kind, p_rows: data || [] }).then(function (res) {
+      if (res.error) throw res.error;
+      cloudPending--;
+      if (cloudPending === 0 && !hasPendingTimers()) {
+        setDirty(false);
+        setCloudStatus(syncedMsg());
+      }
+    }).catch(function (err) {
+      cloudPending = Math.max(0, cloudPending - 1);
+      setDirty(true);
+      setCloudStatus("Sync failed — saved in this browser, will retry on next sync. (" + (err && err.message ? err.message : err) + ")");
+      throw err;
+    });
+  }
+
+  function pushAll() {
+    return Promise.all([
+      pushKind("runs", runs),
+      pushKind("weights", weights),
+      pushKind("bp", bpReadings),
+      pushKind("bootcamp", bootcamp)
+    ]);
+  }
+
+  function applyCloud(d) {
+    cloudApplying = true;
+    try {
+      runs = Array.isArray(d.runs) ? d.runs : [];
+      weights = Array.isArray(d.weights) ? d.weights : [];
+      bpReadings = Array.isArray(d.bp) ? d.bp : [];
+      bootcamp = Array.isArray(d.bootcamp) ? d.bootcamp : [];
+      saveJSON("runlog.runs.v1", runs);
+      saveJSON("runlog.weights.v1", weights);
+      saveJSON("runlog.bp.v1", bpReadings);
+      saveJSON("runlog.bootcamp.v1", bootcamp);
+    } finally {
+      cloudApplying = false;
+    }
+    renderRuns();
+    renderWeight();
+    renderBP();
+    renderBootcamp();
+    renderProgress();
+  }
+
+  // Pull from the database. If this browser has unsynced edits, or the
+  // database is still empty, upload the local copy instead.
+  function pullAll() {
+    setCloudStatus("Loading from cloud…");
+    return sbClient.rpc("get_all").then(function (res) {
+      if (res.error) throw res.error;
+      var d = res.data || {};
+      var cloudEmpty = !(d.runs || []).length && !(d.weights || []).length &&
+        !(d.bp || []).length && !(d.bootcamp || []).length;
+      var localHas = runs.length || weights.length || bpReadings.length || bootcamp.length;
+      if (isDirty() || (cloudEmpty && localHas)) {
+        return pushAll();
+      }
+      applyCloud(d);
+      setDirty(false);
+      setCloudStatus(syncedMsg());
+    }).catch(function (err) {
+      setCloudStatus("Sync failed — using this browser's copy. (" + (err && err.message ? err.message : err) + ")");
+    });
+  }
+
+  function loadSupabaseSdk() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SUPABASE_SDK;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("couldn't load the Supabase library — are you offline?")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function makeClient(cfg) {
+    return loadSupabaseSdk().then(function () {
+      sbClient = window.supabase.createClient(cfg.url, cfg.key, {
+        auth: { persistSession: true, autoRefreshToken: true, storageKey: "mynd.cloud.auth" }
+      });
+      return sbClient;
+    });
+  }
+
+  function showCloudUi() {
+    var cfg = cloudCfg() || {};
+    var signedIn = !!cloudUser;
+    document.getElementById("cloudSetupForm").style.display = signedIn ? "none" : "";
+    document.getElementById("cloudSignedIn").style.display = signedIn ? "" : "none";
+    if (!signedIn) {
+      if (cfg.url) document.getElementById("cloudUrl").value = cfg.url;
+      if (cfg.key) document.getElementById("cloudKey").value = cfg.key;
+      if (cfg.email) document.getElementById("cloudEmail").value = cfg.email;
+    }
+    var footer = document.getElementById("storageFooter");
+    if (footer) {
+      footer.textContent = signedIn
+        ? "Data syncs to your private Supabase database; a copy stays in this browser."
+        : "Data is stored privately in this browser only.";
+    }
+  }
+
+  function initCloud() {
+    document.getElementById("cloudSetupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var url = document.getElementById("cloudUrl").value.trim().replace(/\/+$/, "");
+      var key = document.getElementById("cloudKey").value.trim();
+      var email = document.getElementById("cloudEmail").value.trim();
+      var passEl = document.getElementById("cloudPass");
+      var pass = passEl.value;
+      if (!/^https:\/\/.+/.test(url) || !key || !email || !pass) {
+        setCloudStatus("Enter the project URL, anon key, email, and password.");
+        return;
+      }
+      var cfg = { url: url, key: key, email: email };
+      setCloudCfg(cfg);
+      setCloudStatus("Signing in…");
+      sbClient = null;
+      makeClient(cfg).then(function () {
+        return sbClient.auth.signInWithPassword({ email: email, password: pass });
+      }).then(function (res) {
+        if (res.error) throw res.error;
+        passEl.value = "";
+        cloudUser = res.data.user;
+        showCloudUi();
+        return pullAll();
+      }).catch(function (err) {
+        setCloudStatus("Sign-in failed: " + (err && err.message ? err.message : err));
+      });
+    });
+
+    document.getElementById("cloudSyncBtn").addEventListener("click", function () {
+      if (sbClient && cloudUser) pullAll();
+    });
+
+    document.getElementById("cloudPushBtn").addEventListener("click", function () {
+      if (!sbClient || !cloudUser) return;
+      if (!confirm("Replace everything in the cloud database with what's in this browser?")) return;
+      setCloudStatus("Uploading…");
+      pushAll().catch(function () { /* status already set */ });
+    });
+
+    document.getElementById("cloudSignOutBtn").addEventListener("click", function () {
+      var done = function () {
+        cloudUser = null;
+        showCloudUi();
+        setCloudStatus("Signed out — data stays in this browser.");
+      };
+      if (sbClient) sbClient.auth.signOut().then(done, done); else done();
+    });
+
+    var cfg = cloudCfg();
+    showCloudUi();
+    if (!cfg) return;
+    setCloudStatus("Connecting…");
+    makeClient(cfg).then(function () {
+      return sbClient.auth.getSession();
+    }).then(function (res) {
+      cloudUser = res && res.data && res.data.session ? res.data.session.user : null;
+      showCloudUi();
+      if (cloudUser) return pullAll();
+      setCloudStatus(isDirty() ? "Signed out — local changes are waiting to sync." : "Signed out — sign in to sync.");
+    }).catch(function (err) {
+      setCloudStatus("Offline — using this browser's copy. (" + (err && err.message ? err.message : err) + ")");
+    });
+  }
+
+  function parseTimeToSeconds(str) {
+    if (!str) return null;
+    var parts = str.trim().split(":").map(function (p) { return p.trim(); });
+    if (parts.some(function (p) { return p === "" || isNaN(Number(p)); })) return null;
+    var nums = parts.map(Number);
+    var secs = 0;
+    if (nums.length === 3) {
+      secs = nums[0] * 3600 + nums[1] * 60 + nums[2];
+    } else if (nums.length === 2) {
+      secs = nums[0] * 60 + nums[1];
+    } else if (nums.length === 1) {
+      secs = nums[0];
+    } else {
+      return null;
+    }
+    return secs > 0 ? secs : null;
+  }
+
+  function formatSecondsAsTime(totalSecs) {
+    totalSecs = Math.round(totalSecs);
+    var h = Math.floor(totalSecs / 3600);
+    var m = Math.floor((totalSecs % 3600) / 60);
+    var s = totalSecs % 60;
+    var mm = h > 0 ? String(m).padStart(2, "0") : String(m);
+    var ss = String(s).padStart(2, "0");
+    return h > 0 ? (h + ":" + mm + ":" + ss) : (mm + ":" + ss);
+  }
+
+  function formatPace(secPerMile) {
+    var m = Math.floor(secPerMile / 60);
+    var s = Math.round(secPerMile % 60);
+    if (s === 60) { m += 1; s = 0; }
+    return m + ":" + String(s).padStart(2, "0");
+  }
+
+  function daysBetween(dateStr) {
+    var target = new Date(dateStr + "T00:00:00");
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    var diffMs = target.getTime() - now.getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  }
+
+  function fmtDateDisplay(dateStr) {
+    var d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  // ---------- Races ----------
+  function renderRaces() {
+    var el = document.getElementById("races");
+    el.innerHTML = "";
+    RACES.forEach(function (race) {
+      var days = daysBetween(race.date);
+      var card = document.createElement("div");
+      card.className = "race-card" + (days < 0 ? " past" : "");
+      var label = days < 0 ? "days ago" : (days === 0 ? "today" : "days to go");
+      var value = Math.abs(days);
+      card.innerHTML =
+        '<div class="race-name">' + race.name + '</div>' +
+        '<div class="race-date">' + fmtDateDisplay(race.date) + '</div>' +
+        '<div class="days">' + value + '</div>' +
+        '<div class="days-label">' + label + '</div>' +
+        ((race.time || race.place) ? '<div class="race-meta">' + (race.time ? escapeHtml(race.time) : "") +
+          (race.time && race.place ? '<br>' : "") + (race.place ? escapeHtml(race.place) : "") + '</div>' : "");
+      el.appendChild(card);
+    });
+  }
+
+  // ---------- Week strip ----------
+  function renderWeek() {
+    var el = document.getElementById("weekStrip");
+    el.innerHTML = "";
+    var jsDay = new Date().getDay(); // 0 = Sun
+    var todayIndex = jsDay === 0 ? 6 : jsDay - 1; // convert to Mon=0..Sun=6
+    WEEK.forEach(function (day, i) {
+      var div = document.createElement("div");
+      div.className = "week-day" + (i === todayIndex ? " today" : "");
+      div.innerHTML = '<div class="d-name">' + day.name + '</div><div class="d-activity">' + day.activity + '</div>';
+      el.appendChild(div);
+    });
+  }
+
+  // ---------- Runs ----------
+  var runs = loadJSON(RUNS_KEY);
+  (function fixHalfMarathons() {
+    var changed = false;
+    runs.forEach(function (r) {
+      if (r.type === "Other" && Math.abs(r.dist - 13.1) <= 0.3) { r.type = "Half Marathon"; changed = true; }
+      if (r.type === "Other" && r.date === "2026-09-11" && Math.abs(r.dist - 10.01) <= 0.05) { r.type = "15K"; changed = true; }
+    });
+    if (changed) saveJSON(RUNS_KEY, runs);
+  })();
+  var RUNS_PAGE_SIZE = 10;
+  var runsShown = RUNS_PAGE_SIZE;
+
+  function renderRuns() {
+    var body = document.getElementById("runBody");
+    var empty = document.getElementById("runEmpty");
+    var moreWrap = document.getElementById("runShowMoreWrap");
+    var moreBtn = document.getElementById("runShowMoreBtn");
+    body.innerHTML = "";
+    if (runs.length === 0) {
+      empty.style.display = "block";
+      moreWrap.style.display = "none";
+      renderPie();
+      if (typeof renderProgress === "function") renderProgress();
+      return;
+    }
+    empty.style.display = "none";
+    var sorted = runs.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    var visible = sorted.slice(0, runsShown);
+    visible.forEach(function (run) {
+      var tr = document.createElement("tr");
+      var paceSec = run.timeSec / run.dist;
+      var paceStr = formatPace(paceSec) + "/mi";
+      var badge = '<span class="badge na">&mdash;</span>';
+      var target = TARGETS[run.type];
+      if (target) {
+        if (paceSec <= target[1] && paceSec >= target[0] * 0.85) {
+          badge = paceSec <= target[1] && paceSec >= target[0]
+            ? '<span class="badge good">on target</span>'
+            : '<span class="badge good">ahead</span>';
+        } else if (paceSec > target[1]) {
+          badge = '<span class="badge slow">off pace</span>';
+        } else {
+          badge = '<span class="badge good">ahead</span>';
+        }
+      }
+      tr.innerHTML =
+        '<td>' + fmtDateDisplay(run.date) + '</td>' +
+        '<td><select class="type-edit" data-id="' + run.id + '" style="font-size:12px;padding:3px 6px;">' +
+          ["10K", "5K", "8K", "15K", "Half Marathon", "Other"].map(function (t) {
+            return '<option value="' + t + '"' + (t === run.type ? ' selected' : '') + '>' + t + '</option>';
+          }).join("") + '</select></td>' +
+        '<td>' + run.dist.toFixed(2) + '</td>' +
+        '<td>' + formatSecondsAsTime(run.timeSec) + '</td>' +
+        '<td>' + paceStr + '</td>' +
+        '<td>' + badge + '</td>' +
+        '<td class="notes-cell">' + (run.notes ? escapeHtml(run.notes) : "") + '</td>' +
+        '<td><button class="row-del" data-id="' + run.id + '" title="Delete">&times;</button></td>';
+      body.appendChild(tr);
+    });
+
+    if (sorted.length > RUNS_PAGE_SIZE) {
+      moreWrap.style.display = "block";
+      if (runsShown < sorted.length) {
+        var remaining = sorted.length - runsShown;
+        moreBtn.textContent = "Show more (" + remaining + " remaining)";
+        moreBtn.onclick = function () {
+          runsShown += RUNS_PAGE_SIZE;
+          renderRuns();
+        };
+      } else {
+        moreBtn.textContent = "Show fewer";
+        moreBtn.onclick = function () {
+          runsShown = RUNS_PAGE_SIZE;
+          renderRuns();
+        };
+      }
+    } else {
+      moreWrap.style.display = "none";
+    }
+
+    body.querySelectorAll(".type-edit").forEach(function (sel) {
+      sel.addEventListener("change", function () {
+        var id = sel.getAttribute("data-id");
+        runs.forEach(function (r) { if (String(r.id) === String(id)) r.type = sel.value; });
+        saveJSON(RUNS_KEY, runs);
+        renderRuns();
+      });
+    });
+    body.querySelectorAll(".row-del").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-id");
+        runs = runs.filter(function (r) { return String(r.id) !== String(id); });
+        saveJSON(RUNS_KEY, runs);
+        renderRuns();
+      });
+    });
+    renderPie();
+    if (typeof renderProgress === "function") renderProgress();
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  document.getElementById("runForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var date = document.getElementById("rDate").value;
+    var type = document.getElementById("rType").value;
+    var dist = parseFloat(document.getElementById("rDist").value);
+    var timeSec = parseTimeToSeconds(document.getElementById("rTime").value);
+    var notes = document.getElementById("rNotes").value;
+
+    if (!date || !dist || dist <= 0 || !timeSec) {
+      alert("Enter a valid date, distance, and time (e.g. 52:30).");
+      return;
+    }
+
+    runs.push({
+      id: Date.now(),
+      date: date,
+      type: type,
+      dist: dist,
+      timeSec: timeSec,
+      notes: notes
+    });
+    saveJSON(RUNS_KEY, runs);
+    renderRuns();
+    e.target.reset();
+    document.getElementById("rDate").value = date;
+  });
+
+  // ---------- Weight ----------
+  var weights = loadJSON(WEIGHT_KEY);
+
+  function renderWeight() {
+    var currentEl = document.getElementById("weightCurrent");
+    var sparkEl = document.getElementById("weightSpark");
+    var sorted = weights.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+    if (sorted.length === 0) {
+      currentEl.innerHTML = '<span class="val" style="font-size:16px; color: var(--slate);">No entries yet</span>';
+      sparkEl.innerHTML = "";
+      if (typeof renderProgress === "function") renderProgress();
+      return;
+    }
+
+    var latest = sorted[sorted.length - 1];
+    var first = sorted[0];
+    var delta = latest.val - first.val;
+    var deltaClass = delta < 0 ? "down" : (delta > 0 ? "up" : "");
+    var deltaStr = (delta === 0 ? "no change" : (delta > 0 ? "+" : "") + delta.toFixed(1) + " lb since " + fmtDateDisplay(first.date));
+
+    currentEl.innerHTML =
+      '<span class="val">' + latest.val.toFixed(1) + '</span><span class="delta">lb</span>' +
+      '<span class="delta ' + deltaClass + '">' + deltaStr + '</span>';
+
+    if (sorted.length >= 2) {
+      var vals = sorted.map(function (w) { return w.val; });
+      var min = Math.min.apply(null, vals);
+      var max = Math.max.apply(null, vals);
+      var range = max - min || 1;
+      var w = 300, h = 90, pad = 6;
+      var stepX = (w - pad * 2) / (sorted.length - 1);
+      var points = sorted.map(function (pt, i) {
+        var x = pad + i * stepX;
+        var y = h - pad - ((pt.val - min) / range) * (h - pad * 2);
+        return x.toFixed(1) + "," + y.toFixed(1);
+      }).join(" ");
+      var lineColor = getComputedStyle(document.documentElement).getPropertyValue('--clay').trim() || "#A83A24";
+      sparkEl.innerHTML =
+        '<polyline points="' + points + '" fill="none" stroke="' + lineColor + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />';
+    } else {
+      sparkEl.innerHTML = "";
+    }
+    if (typeof renderProgress === "function") renderProgress();
+  }
+
+  document.getElementById("weightForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var date = document.getElementById("wDate").value;
+    var val = parseFloat(document.getElementById("wVal").value);
+    if (!date || !val || val <= 0) {
+      alert("Enter a valid date and weight.");
+      return;
+    }
+    var existingIdx = weights.findIndex(function (w) { return w.date === date; });
+    if (existingIdx >= 0) {
+      weights[existingIdx].val = val;
+    } else {
+      weights.push({ date: date, val: val });
+    }
+    saveJSON(WEIGHT_KEY, weights);
+    renderWeight();
+    e.target.reset();
+  });
+
+  // ---------- Blood pressure ----------
+  var BP_KEY = "runlog.bp.v1";
+  var bpReadings = loadJSON(BP_KEY);
+
+  function classifyBP(sys, dia) {
+    if (sys >= 180 || dia >= 120) return { label: "Crisis", cls: "slow" };
+    if (sys >= 140 || dia >= 90) return { label: "Stage 2", cls: "slow" };
+    if (sys >= 130 || dia >= 80) return { label: "Stage 1", cls: "slow" };
+    if (sys >= 120) return { label: "Elevated", cls: "na" };
+    return { label: "Normal", cls: "good" };
+  }
+
+  function bpText(r) {
+    return r.sys + "/" + r.dia + (r.pulse ? "/" + r.pulse : "");
+  }
+
+  function renderBP() {
+    var currentEl = document.getElementById("bpCurrent");
+    var sparkEl = document.getElementById("bpSpark");
+    var sorted = bpReadings.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+    if (sorted.length === 0) {
+      currentEl.innerHTML = '<span class="val" style="font-size:16px; color: var(--slate);">No readings yet</span>';
+      sparkEl.innerHTML = "";
+      if (typeof renderProgress === "function") renderProgress();
+      return;
+    }
+
+    var latest = sorted[sorted.length - 1];
+    var status = classifyBP(latest.sys, latest.dia);
+    currentEl.innerHTML =
+      '<span class="val">' + bpText(latest) + '</span>' +
+      '<span class="delta">' + (latest.pulse ? "sys/dia/bpm" : "sys/dia") + '</span>' +
+      '<span class="badge ' + status.cls + '">' + status.label + '</span>';
+
+    if (sorted.length >= 2) {
+      var sysVals = sorted.map(function (r) { return r.sys; });
+      var diaVals = sorted.map(function (r) { return r.dia; });
+      var allVals = sysVals.concat(diaVals);
+      var min = Math.min.apply(null, allVals);
+      var max = Math.max.apply(null, allVals);
+      var range = max - min || 1;
+      var w = 300, h = 90, pad = 6;
+      var stepX = (w - pad * 2) / (sorted.length - 1);
+
+      function toPoints(vals) {
+        return sorted.map(function (pt, i) {
+          var x = pad + i * stepX;
+          var y = h - pad - ((vals[i] - min) / range) * (h - pad * 2);
+          return x.toFixed(1) + "," + y.toFixed(1);
+        }).join(" ");
+      }
+
+      var clay = getComputedStyle(document.documentElement).getPropertyValue('--clay').trim() || "#A83A24";
+      var slate = getComputedStyle(document.documentElement).getPropertyValue('--slate').trim() || "#6C747C";
+      sparkEl.innerHTML =
+        '<polyline points="' + toPoints(sysVals) + '" fill="none" stroke="' + clay + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />' +
+        '<polyline points="' + toPoints(diaVals) + '" fill="none" stroke="' + slate + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3,3" />';
+      var pulsePts = sorted.filter(function (r) { return r.pulse; });
+      if (pulsePts.length >= 2) {
+        var amber = getComputedStyle(document.documentElement).getPropertyValue('--amber').trim() || "#D9A441";
+        var pStep = (w - pad * 2) / (pulsePts.length - 1);
+        var pMin = Math.min.apply(null, pulsePts.map(function (r) { return r.pulse; }));
+        var pMax = Math.max.apply(null, pulsePts.map(function (r) { return r.pulse; }));
+        var pRange = pMax - pMin || 1;
+        var pLine = pulsePts.map(function (r, i) {
+          var x = pad + i * pStep;
+          var y = h - pad - ((r.pulse - pMin) / pRange) * (h - pad * 2);
+          return x.toFixed(1) + "," + y.toFixed(1);
+        }).join(" ");
+        sparkEl.innerHTML += '<polyline points="' + pLine + '" fill="none" stroke="' + amber + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1,4" />';
+      }
+    } else {
+      sparkEl.innerHTML = "";
+    }
+    if (typeof renderProgress === "function") renderProgress();
+  }
+
+  document.getElementById("bpForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var date = document.getElementById("bpDate").value;
+    var sys = parseFloat(document.getElementById("bpSys").value);
+    var dia = parseFloat(document.getElementById("bpDia").value);
+    var pulse = parseFloat(document.getElementById("bpPulse").value) || null;
+    if (!date || !sys || !dia || sys <= 0 || dia <= 0) {
+      alert("Enter a valid date, systolic, and diastolic value.");
+      return;
+    }
+    var existingIdx = bpReadings.findIndex(function (r) { return r.date === date; });
+    if (existingIdx >= 0) {
+      bpReadings[existingIdx].sys = sys;
+      bpReadings[existingIdx].dia = dia;
+      if (pulse) bpReadings[existingIdx].pulse = pulse;
+    } else {
+      bpReadings.push({ date: date, sys: sys, dia: dia, pulse: pulse });
+    }
+    saveJSON(BP_KEY, bpReadings);
+    renderBP();
+    e.target.reset();
+  });
+
+  // ---------- Bootcamp ----------
+  var BOOTCAMP_KEY = "runlog.bootcamp.v1";
+  var bootcamp = loadJSON(BOOTCAMP_KEY);
+
+  function makeSparkPoints(values, w, h, pad) {
+    if (values.length < 2) return "";
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+    var range = max - min || 1;
+    var stepX = (w - pad * 2) / (values.length - 1);
+    return values.map(function (v, i) {
+      var x = pad + i * stepX;
+      var y = h - pad - ((v - min) / range) * (h - pad * 2);
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+  }
+
+  // Durations are stored in minutes (so older entries still work) and shown in hours.
+  function fmtHours(min) {
+    var h = min / 60;
+    return (Math.round(h * 100) / 100) + " hr";
+  }
+
+  function renderBootcamp() {
+    var currentEl = document.getElementById("bootcampCurrent");
+    var sparkEl = document.getElementById("bootcampSpark");
+    var body = document.getElementById("bootcampBody");
+    var empty = document.getElementById("bootcampEmpty");
+    var sorted = bootcamp.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+
+    if (sorted.length === 0) {
+      currentEl.innerHTML = '<span class="val" style="font-size:16px; color: var(--slate);">No sessions yet</span>';
+      sparkEl.innerHTML = "";
+      body.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    var totalSessions = sorted.length;
+    var totalCal = sorted.reduce(function (s, r) { return s + r.calories; }, 0);
+    var avgDur = sorted.reduce(function (s, r) { return s + r.duration; }, 0) / totalSessions;
+
+    currentEl.innerHTML =
+      '<span class="val">' + totalSessions + '</span><span class="delta">sessions</span>' +
+      '<span class="delta">' + totalCal.toLocaleString() + ' kcal total &middot; avg ' + fmtHours(avgDur) + '</span>';
+
+    var calValues = sorted.map(function (r) { return r.calories; });
+    var clay = getComputedStyle(document.documentElement).getPropertyValue('--clay').trim() || "#CB7A47";
+    var pts = makeSparkPoints(calValues, 300, 90, 6);
+    sparkEl.innerHTML = pts ? '<polyline points="' + pts + '" fill="none" stroke="' + clay + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />' : "";
+
+    var recent = sorted.slice().reverse().slice(0, 10);
+    body.innerHTML = "";
+    recent.forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td>' + fmtDateDisplay(r.date) + '</td>' +
+        '<td>' + fmtHours(r.duration) + '</td>' +
+        '<td>' + r.calories + ' kcal</td>' +
+        '<td><button class="row-del" data-id="' + r.id + '" title="Delete">&times;</button></td>';
+      body.appendChild(tr);
+    });
+    body.querySelectorAll(".row-del").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-id");
+        bootcamp = bootcamp.filter(function (r) { return String(r.id) !== String(id); });
+        saveJSON(BOOTCAMP_KEY, bootcamp);
+        renderBootcamp();
+        renderProgress();
+      });
+    });
+  }
+
+  document.getElementById("bootcampForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var date = document.getElementById("bcDate").value;
+    var hours = parseFloat(document.getElementById("bcDuration").value);
+    var duration = Math.round(hours * 60);
+    var calories = parseFloat(document.getElementById("bcCalories").value);
+    if (!date || !duration || duration <= 0 || !calories || calories <= 0) {
+      alert("Enter a valid date, duration, and calories.");
+      return;
+    }
+    bootcamp.push({ id: Date.now(), date: date, duration: duration, calories: calories });
+    saveJSON(BOOTCAMP_KEY, bootcamp);
+    renderBootcamp();
+    renderProgress();
+    e.target.reset();
+    document.getElementById("bcDate").value = date;
+  });
+
+  // ---------- Overhaul progress (combined dashboard) ----------
+  function monthKey(dateStr) { return dateStr.slice(0, 7); }
+
+  function monthlySeries(records, dateFn, valueFn, mode) {
+    var buckets = {};
+    records.forEach(function (r) {
+      var mk = monthKey(dateFn(r));
+      if (!buckets[mk]) buckets[mk] = [];
+      buckets[mk].push(valueFn(r));
+    });
+    var keys = Object.keys(buckets).sort();
+    return keys.map(function (k) {
+      var vals = buckets[k];
+      var sum = vals.reduce(function (s, v) { return s + v; }, 0);
+      return mode === "avg" ? sum / vals.length : sum;
+    });
+  }
+
+  function tileHtml(label, val, sub, sparkPoints, color) {
+    var sparkSvg = sparkPoints
+      ? '<svg class="tile-spark" viewBox="0 0 300 40" preserveAspectRatio="none"><polyline points="' + sparkPoints + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>'
+      : '<div class="tile-spark"></div>';
+    return '<div class="tile"><div class="tile-label">' + label + '</div><div class="tile-val">' + val + '</div>' +
+      '<div class="tile-sub">' + sub + '</div>' + sparkSvg + '</div>';
+  }
+
+  function renderProgress() {
+    var wrap = document.getElementById("progressTiles");
+    var colors = resolvePieColors();
+    var clay = getComputedStyle(document.documentElement).getPropertyValue('--clay').trim();
+    var good = getComputedStyle(document.documentElement).getPropertyValue('--good').trim();
+    var amber = getComputedStyle(document.documentElement).getPropertyValue('--amber').trim();
+    var bad = getComputedStyle(document.documentElement).getPropertyValue('--bad').trim();
+    var html = "";
+
+    // Running
+    var totalMiles = runs.reduce(function (s, r) { return s + r.dist; }, 0);
+    var runMonthly = monthlySeries(runs, function (r) { return r.date; }, function (r) { return r.dist; }, "sum");
+    html += tileHtml("Running", totalMiles.toFixed(1) + " mi", runs.length + " runs logged", makeSparkPoints(runMonthly, 300, 40, 4), good);
+
+    // Bootcamp
+    var totalCal = bootcamp.reduce(function (s, r) { return s + r.calories; }, 0);
+    var bcMonthly = monthlySeries(bootcamp, function (r) { return r.date; }, function (r) { return r.calories; }, "sum");
+    html += tileHtml("Bootcamp", bootcamp.length + " sessions", totalCal.toLocaleString() + " kcal total", makeSparkPoints(bcMonthly, 300, 40, 4), clay);
+
+    // Weight
+    if (weights.length >= 1) {
+      var wSorted = weights.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      var wLatest = wSorted[wSorted.length - 1];
+      var wFirst = wSorted[0];
+      var wDelta = wLatest.val - wFirst.val;
+      var wMonthly = monthlySeries(weights, function (r) { return r.date; }, function (r) { return r.val; }, "avg");
+      html += tileHtml("Weight", wLatest.val.toFixed(1) + " lb", (wDelta > 0 ? "+" : "") + wDelta.toFixed(1) + " lb since " + fmtDateDisplay(wFirst.date), makeSparkPoints(wMonthly, 300, 40, 4), amber);
+    } else {
+      html += tileHtml("Weight", "—", "No entries yet", "", amber);
+    }
+
+    // Blood pressure
+    if (bpReadings.length >= 1) {
+      var bSorted = bpReadings.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      var bLatest = bSorted[bSorted.length - 1];
+      var status = classifyBP(bLatest.sys, bLatest.dia);
+      var bpMonthly = monthlySeries(bpReadings, function (r) { return r.date; }, function (r) { return r.sys; }, "avg");
+      html += tileHtml("Blood pressure", bpText(bLatest), status.label + " &middot; " + bpReadings.length + " readings", makeSparkPoints(bpMonthly, 300, 40, 4), bad);
+    } else {
+      html += tileHtml("Blood pressure", "—", "No readings yet", "", bad);
+    }
+
+    wrap.innerHTML = html;
+  }
+
+  // ---------- Pace calculator ----------
+  document.getElementById("calcPaceBtn").addEventListener("click", function () {
+    var dist = parseFloat(document.getElementById("cDist").value);
+    var timeSec = parseTimeToSeconds(document.getElementById("cTime").value);
+    var resultEl = document.getElementById("calcResult");
+    if (!dist || dist <= 0 || !timeSec) {
+      resultEl.textContent = "Enter both distance and a finish time (e.g. 55:00).";
+      return;
+    }
+    var pace = timeSec / dist;
+    resultEl.textContent = dist.toFixed(2) + " mi in " + formatSecondsAsTime(timeSec) + " = " + formatPace(pace) + " /mi";
+  });
+
+  document.getElementById("calcTimeBtn").addEventListener("click", function () {
+    var dist = parseFloat(document.getElementById("cDist").value);
+    var paceSec = parseTimeToSeconds(document.getElementById("cPace").value);
+    var resultEl = document.getElementById("calcResult");
+    if (!dist || dist <= 0 || !paceSec) {
+      resultEl.textContent = "Enter distance and a target pace (e.g. 9:15).";
+      return;
+    }
+    var totalSec = paceSec * dist;
+    resultEl.textContent = dist.toFixed(2) + " mi at " + formatPace(paceSec) + " /mi = " + formatSecondsAsTime(totalSec) + " finish time";
+  });
+
+  function classifyType(dist) {
+    if (Math.abs(dist - 13.1) <= 0.3) return "Half Marathon";
+    if (Math.abs(dist - 9.32) <= 0.3) return "15K";
+    if (Math.abs(dist - 6.2) <= 0.5) return "10K";
+    if (Math.abs(dist - 4.97) <= 0.35) return "8K";
+    if (Math.abs(dist - 3.1) <= 0.3) return "5K";
+    return "Other";
+  }
+
+  function parseCSVText(text) {
+    return text.split(/\r\n|\n/).map(function (line) { return line.trim(); }).filter(function (line) { return line.length > 0; });
+  }
+
+  function readFileText(file, callback) {
+    var reader = new FileReader();
+    reader.onload = function (e) { callback(e.target.result); };
+    reader.onerror = function () { callback(null); };
+    reader.readAsText(file);
+  }
+
+  document.getElementById("importForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var runsFile = document.getElementById("importRuns").files[0];
+    var weightsFile = document.getElementById("importWeights").files[0];
+    var bpFile = document.getElementById("importBP").files[0];
+    var resultEl = document.getElementById("importResult");
+    var runsAdded = 0, weightsAdded = 0, bpAdded = 0;
+    var pending = (runsFile ? 1 : 0) + (weightsFile ? 1 : 0) + (bpFile ? 1 : 0);
+
+    if (pending === 0) {
+      resultEl.style.display = "block";
+      resultEl.textContent = "Choose at least one CSV file to import.";
+      return;
+    }
+
+    function finish() {
+      pending -= 1;
+      if (pending === 0) {
+        saveJSON(RUNS_KEY, runs);
+        saveJSON(WEIGHT_KEY, weights);
+        saveJSON(BP_KEY, bpReadings);
+        renderRuns();
+        renderWeight();
+        renderBP();
+        resultEl.style.display = "block";
+        resultEl.textContent = "Imported " + runsAdded + " run(s), " + weightsAdded + " weight entr" + (weightsAdded === 1 ? "y" : "ies") + ", and " + bpAdded + " BP reading(s).";
+        e.target.reset();
+      }
+    }
+
+    if (runsFile) {
+      readFileText(runsFile, function (text) {
+        if (text) {
+          var lines = parseCSVText(text);
+          var existingKeys = {};
+          runs.forEach(function (r) { existingKeys[r.date + "|" + r.dist.toFixed(2)] = true; });
+          lines.forEach(function (line, i) {
+            if (i === 0 && line.toLowerCase().indexOf("date") === 0) return; // header
+            var parts = line.split(",");
+            if (parts.length < 3) return;
+            var date = parts[0].trim();
+            var dist = parseFloat(parts[1]);
+            var durMin = parseFloat(parts[2]);
+            if (!date || !dist || !durMin || dist <= 0 || durMin <= 0) return;
+            var key = date + "|" + dist.toFixed(2);
+            if (existingKeys[key]) return;
+            existingKeys[key] = true;
+            runs.push({
+              id: Date.now() + Math.random(),
+              date: date,
+              type: classifyType(dist),
+              dist: dist,
+              timeSec: Math.round(durMin * 60),
+              notes: "Imported from Apple Health"
+            });
+            runsAdded++;
+          });
+        }
+        finish();
+      });
+    }
+
+    if (weightsFile) {
+      readFileText(weightsFile, function (text) {
+        if (text) {
+          var lines = parseCSVText(text);
+          lines.forEach(function (line, i) {
+            if (i === 0 && line.toLowerCase().indexOf("date") === 0) return; // header
+            var parts = line.split(",");
+            if (parts.length < 2) return;
+            var date = parts[0].trim();
+            var val = parseFloat(parts[1]);
+            if (!date || !val || val <= 0) return;
+            var existingIdx = weights.findIndex(function (w) { return w.date === date; });
+            if (existingIdx >= 0) {
+              weights[existingIdx].val = val;
+            } else {
+              weights.push({ date: date, val: val });
+              weightsAdded++;
+            }
+          });
+        }
+        finish();
+      });
+    }
+
+    if (bpFile) {
+      readFileText(bpFile, function (text) {
+        if (text) {
+          var lines = parseCSVText(text);
+          lines.forEach(function (line, i) {
+            if (i === 0 && line.toLowerCase().indexOf("date") === 0) return; // header
+            var parts = line.split(",");
+            if (parts.length < 3) return;
+            var date = parts[0].trim();
+            var sys = parseFloat(parts[1]);
+            var dia = parseFloat(parts[2]);
+            var pulse = parts.length > 3 ? (parseFloat(parts[3]) || null) : null;
+            if (!date || !sys || !dia || sys <= 0 || dia <= 0) return;
+            var existingIdx = bpReadings.findIndex(function (r) { return r.date === date; });
+            if (existingIdx >= 0) {
+              bpReadings[existingIdx].sys = sys;
+              bpReadings[existingIdx].dia = dia;
+              if (pulse) bpReadings[existingIdx].pulse = pulse;
+            } else {
+              bpReadings.push({ date: date, sys: sys, dia: dia, pulse: pulse });
+              bpAdded++;
+            }
+          });
+        }
+        finish();
+      });
+    }
+  });
+
+  var PIE_COLORS = {
+    "10K": "var(--clay)",
+    "5K": "var(--amber)",
+    "8K": "var(--good)",
+    "15K": "#6F8FA8",
+    "Half Marathon": "var(--ink-soft)",
+    "Other": "var(--slate)"
+  };
+  var PIE_COLORS_RESOLVED = null;
+
+  function resolvePieColors() {
+    if (PIE_COLORS_RESOLVED) return PIE_COLORS_RESOLVED;
+    var cs = getComputedStyle(document.documentElement);
+    PIE_COLORS_RESOLVED = {
+      "10K": cs.getPropertyValue("--clay").trim(),
+      "5K": cs.getPropertyValue("--amber").trim(),
+      "8K": cs.getPropertyValue("--good").trim(),
+      "15K": "#6F8FA8",
+      "Half Marathon": cs.getPropertyValue("--ink-soft").trim(),
+      "Other": cs.getPropertyValue("--slate").trim()
+    };
+    return PIE_COLORS_RESOLVED;
+  }
+
+  function polarPoint(cx, cy, r, angle) {
+    var rad = (angle - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function arcPath(cx, cy, r, startAngle, endAngle) {
+    var start = polarPoint(cx, cy, r, endAngle);
+    var end = polarPoint(cx, cy, r, startAngle);
+    var largeArc = endAngle - startAngle <= 180 ? 0 : 1;
+    return "M" + cx + "," + cy + " L" + start.x.toFixed(2) + "," + start.y.toFixed(2) +
+      " A" + r + "," + r + " 0 " + largeArc + " 0 " + end.x.toFixed(2) + "," + end.y.toFixed(2) + " Z";
+  }
+
+  function renderPie() {
+    var svg = document.getElementById("pieChart");
+    var legend = document.getElementById("pieLegend");
+    if (runs.length === 0) {
+      svg.innerHTML = '<circle cx="110" cy="110" r="90" fill="none" stroke="var(--line)" stroke-width="1" />';
+      legend.innerHTML = '<div class="empty">Log a run to see the breakdown.</div>';
+      return;
+    }
+    var colors = resolvePieColors();
+    var order = ["10K", "5K", "8K", "15K", "Half Marathon", "Other"];
+    var totals = {};
+    order.forEach(function (t) { totals[t] = { count: 0, dist: 0 }; });
+    runs.forEach(function (r) {
+      var t = totals[r.type] ? r.type : "Other";
+      totals[t].count += 1;
+      totals[t].dist += r.dist;
+    });
+    var totalCount = runs.length;
+    var angle = 0;
+    var slicesHtml = "";
+    var legendHtml = "";
+    order.forEach(function (t) {
+      var data = totals[t];
+      if (data.count === 0) return;
+      var fraction = data.count / totalCount;
+      var sweep = fraction * 360;
+      if (sweep >= 359.999) {
+        slicesHtml += '<circle cx="110" cy="110" r="90" fill="' + colors[t] + '" />';
+      } else if (sweep > 0) {
+        slicesHtml += '<path d="' + arcPath(110, 110, 90, angle, angle + sweep) + '" fill="' + colors[t] + '" />';
+      }
+      angle += sweep;
+      var pct = Math.round(fraction * 100);
+      legendHtml += '<div class="legend-row"><span class="legend-swatch" style="background:' + colors[t] + ';"></span>' +
+        '<span class="legend-label">' + t + '</span>' +
+        '<span class="legend-val">' + data.count + ' run' + (data.count === 1 ? "" : "s") + ' &middot; ' + data.dist.toFixed(1) + ' mi &middot; ' + pct + '%</span></div>';
+    });
+    svg.innerHTML = slicesHtml;
+    legend.innerHTML = legendHtml;
+  }
+
+  // ---------- Export as PDF ----------
+  async function saveFile(filename, blob) {
+    try {
+      if (window.claude && typeof window.claude.use === "function") {
+        var downloads = await window.claude.use("downloads");
+        if (downloads) {
+          await downloads.save({ filename: filename, data: blob });
+          return "saved";
+        }
+      }
+    } catch (e) {
+      // fall through to plain browser download
+    }
+    try {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+      return "saved";
+    } catch (e2) {
+      return "failed";
+    }
+  }
+
+  function generatePDF() {
+    var jsPDFCtor = window.jspdf && window.jspdf.jsPDF;
+    if (!jsPDFCtor) return null;
+    var doc = new jsPDFCtor({ unit: "pt", format: "letter" });
+    var left = 40, right = 572, pageBottom = 740;
+    var y = 50;
+
+    function ensureRoom(lineHeight) {
+      if (y + lineHeight > pageBottom) {
+        doc.addPage();
+        y = 50;
+      }
+    }
+
+    function heading(text) {
+      ensureRoom(24);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.text(text, left, y);
+      y += 8;
+      doc.setDrawColor(180, 180, 180);
+      doc.line(left, y, right, y);
+      y += 16;
+    }
+
+    function row(text, opts) {
+      opts = opts || {};
+      ensureRoom(14);
+      doc.setFont(opts.bold ? "courier-bold" : "courier", "normal");
+      doc.setFontSize(opts.size || 9);
+      doc.text(text, left, y);
+      y += opts.gap || 13;
+    }
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("MYND-Fitness Run Logs", left, y);
+    y += 18;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(110, 110, 110);
+    doc.text("Training summary — generated " + new Date().toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }), left, y);
+    doc.setTextColor(0, 0, 0);
+    y += 26;
+
+    // Races
+    heading("Upcoming races");
+    RACES.forEach(function (race) {
+      var days = daysBetween(race.date);
+      var label = days < 0 ? (Math.abs(days) + " days ago") : (days === 0 ? "today" : (days + " days to go"));
+      row(race.name + "  —  " + fmtDateDisplay(race.date) + "  —  " + label);
+    });
+    y += 10;
+
+    // Run summary (mirrors the pie breakdown)
+    heading("Run summary");
+    if (runs.length === 0) {
+      row("No runs logged yet.");
+    } else {
+      var order = ["10K", "5K", "8K", "15K", "Half Marathon", "Other"];
+      var totals = {};
+      order.forEach(function (t) { totals[t] = { count: 0, dist: 0 }; });
+      var totalDist = 0;
+      runs.forEach(function (r) {
+        var t = totals[r.type] ? r.type : "Other";
+        totals[t].count += 1;
+        totals[t].dist += r.dist;
+        totalDist += r.dist;
+      });
+      row("Total: " + runs.length + " runs, " + totalDist.toFixed(1) + " miles", { bold: true });
+      order.forEach(function (t) {
+        if (totals[t].count > 0) {
+          row(t + ": " + totals[t].count + " runs, " + totals[t].dist.toFixed(1) + " mi");
+        }
+      });
+    }
+    y += 10;
+
+    // Weight
+    heading("Weight");
+    if (weights.length === 0) {
+      row("No entries yet.");
+    } else {
+      var wSorted = weights.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      var wFirst = wSorted[0], wLast = wSorted[wSorted.length - 1];
+      var wDelta = wLast.val - wFirst.val;
+      row("Latest: " + wLast.val.toFixed(1) + " lb on " + fmtDateDisplay(wLast.date), { bold: true });
+      row("Change since " + fmtDateDisplay(wFirst.date) + ": " + (wDelta > 0 ? "+" : "") + wDelta.toFixed(1) + " lb");
+    }
+    y += 10;
+
+    // Blood pressure
+    heading("Blood pressure");
+    if (bpReadings.length === 0) {
+      row("No readings yet.");
+    } else {
+      var bSorted = bpReadings.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      var bLast = bSorted[bSorted.length - 1];
+      var status = classifyBP(bLast.sys, bLast.dia);
+      row("Latest: " + bLast.sys + "/" + bLast.dia + (bLast.pulse ? ", pulse " + bLast.pulse + " bpm" : "") + " (" + status.label + ") on " + fmtDateDisplay(bLast.date), { bold: true });
+      row("Reference (AHA), not medical advice.", { size: 8 });
+    }
+    y += 10;
+
+    // Full run history
+    heading("Run history (" + runs.length + " total)");
+    if (runs.length === 0) {
+      row("No runs logged yet.");
+    } else {
+      row("Date        Type   Dist   Time      Pace     Notes", { bold: true });
+      var sortedRuns = runs.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+      sortedRuns.forEach(function (run) {
+        var paceStr = formatPace(run.timeSec / run.dist);
+        var line = run.date.padEnd(12) + run.type.padEnd(7) + run.dist.toFixed(2).padEnd(7) +
+          formatSecondsAsTime(run.timeSec).padEnd(10) + (paceStr + "/mi").padEnd(9) +
+          (run.notes ? run.notes.slice(0, 28) : "");
+        row(line, { size: 8, gap: 11 });
+      });
+    }
+
+    return doc;
+  }
+
+  document.getElementById("exportPdfBtn").addEventListener("click", async function () {
+    var statusEl = document.getElementById("exportStatus");
+    statusEl.textContent = "Building PDF…";
+    var doc = generatePDF();
+    if (!doc) {
+      statusEl.textContent = "PDF generator failed to load. Check your connection and try again.";
+      return;
+    }
+    var blob = doc.output("blob");
+    var filename = "mynd-fitness-run-log-" + new Date().toISOString().slice(0, 10) + ".pdf";
+    var result = await saveFile(filename, blob);
+    statusEl.textContent = result === "saved" ? "Saved." : "Could not save the file.";
+    setTimeout(function () { statusEl.textContent = ""; }, 4000);
+  });
+
+  // ---------- Init ----------
+  document.getElementById("rDate").valueAsDate = new Date();
+  document.getElementById("wDate").valueAsDate = new Date();
+  document.getElementById("bpDate").valueAsDate = new Date();
+  document.getElementById("bcDate").valueAsDate = new Date();
+
+  renderRaces();
+  renderWeek();
+  renderRuns();
+  renderWeight();
+  renderBP();
+  renderBootcamp();
+  renderProgress();
+  initCloud();
+})();
+</script>
+</body>
+</html>
