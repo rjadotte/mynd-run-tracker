@@ -545,6 +545,10 @@ header.top .tagline { color: rgba(255,255,255,.88); position: relative; z-index:
 .race-card .days { color: var(--brand-blue); }
 .race-card .race-name { color: var(--ink); font-weight: 700; }
 .race-card .race-date, .race-card .days-label { color: var(--slate); }
+.race-card.linked { display:block; text-decoration:none; color:inherit; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+.race-card.linked:hover, .race-card.linked:focus-visible { transform:translateY(-3px); box-shadow:0 10px 24px rgba(30,60,140,0.16); }
+.race-card.linked:focus-visible { outline:3px solid var(--brand-blue); outline-offset:3px; }
+.race-card.linked .race-name::after { content:" \2197"; font-size:.8em; color:var(--brand-coral); }
 
 section { margin-bottom: 32px; }
 section > h2 {
@@ -565,6 +569,27 @@ section > h2::before { content:""; display:inline-block; width:8px; height:8px; 
 }
 .week-day.today { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); border:2px solid var(--brand-coral); transform: translateY(-2px); }
 .week-day.today .d-name { color: var(--brand-coral); font-weight:700; }
+.week-day.quality { border-top: 3px solid var(--brand-blue); }
+.week-day.race { border-top: 3px solid var(--brand-coral); }
+.plan-week-head { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: -4px 0 12px; }
+.plan-pill { display:inline-block; background: var(--brand-blue); color:#fff; border-radius: 999px; padding: 2px 10px; margin-right: 6px; font-weight:700; }
+.plan-note { margin-top: 8px; padding: 8px 12px; border-left: 3px solid var(--brand-yellow); background: rgba(255,255,255,.7); border-radius: 8px; color: var(--ink); }
+.plan-goals { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin-bottom: 12px; }
+.zones { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+@media (max-width: 720px) { .zones { grid-template-columns: 1fr 1fr; } }
+.zone { background: rgba(255,255,255,.86); border:1px solid var(--line); border-radius: 14px; padding: 12px; }
+.zone-name { font-weight:700; color: var(--brand-blue); font-size: 14px; }
+.zone-pace { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin: 4px 0 2px; }
+.zone-feel { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
+.plan-tips { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 12px; padding-left: 18px; line-height: 1.6; }
+.plan-details summary { cursor:pointer; font-weight:700; color: var(--brand-blue); padding: 6px 0; }
+.plan-scroll { overflow-x:auto; }
+.plan-table { width:100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+.plan-table th, .plan-table td { text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.plan-table th { font-family: var(--font-mono); font-size: 11px; color: var(--slate); font-weight: 500; }
+.plan-table tr.current td { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); }
+.plan-table td:first-child { white-space: nowrap; }
+.plan-block { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
 
 .grid-2 { gap: 18px; }
 
@@ -619,6 +644,34 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
   .races { gap:11px; }
 }
 
+
+/* ===== Phone readability fix: keep the light palette in dark mode, dark text in fields ===== */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #FFF8F1; --panel: #FFFFFF; --ink: #17233C; --ink-soft: #40506B; --slate: #66758F;
+    --line: rgba(23,35,60,.12); --line-strong: rgba(23,35,60,.22);
+    --clay: #E53935; --clay-soft: rgba(229,57,53,.10); --amber: #F5A623; --amber-soft: rgba(245,166,35,.14);
+    --good: #14A77A; --good-soft: rgba(20,167,122,.11); --bad: #D93025;
+  }
+}
+input, select, textarea {
+  color: #0F1A2E !important;
+  -webkit-text-fill-color: #0F1A2E;
+  caret-color: #173F8A;
+  background-color: #FFFFFF;
+  font-size: 16px; /* 16px+ also stops iPhone from zooming in on tap */
+  opacity: 1;
+}
+input::placeholder, textarea::placeholder {
+  color: #7A869C !important;
+  -webkit-text-fill-color: #7A869C;
+  opacity: 1;
+}
+input:-webkit-autofill {
+  -webkit-text-fill-color: #0F1A2E !important;
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+}
 </style>
 </head>
 <body>
@@ -670,7 +723,24 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
 
   <section>
     <h2>This week</h2>
+    <div class="plan-week-head" id="planWeekHead"></div>
     <div class="week-strip" id="weekStrip"></div>
+  </section>
+
+  <section id="pacePlan">
+    <h2>5K &amp; 10K Pace Plan</h2>
+    <div class="plan-goals" id="planGoals"></div>
+    <div class="zones" id="planZones"></div>
+    <ul class="plan-tips" id="planTips"></ul>
+    <details class="plan-details">
+      <summary>Full 8-week plan (Sep 28 &ndash; Nov 21)</summary>
+      <div class="plan-scroll">
+        <table class="plan-table">
+          <thead><tr><th>Week</th><th>Tue (quality)</th><th>Thu (easy)</th><th>Fri (endurance)</th><th>Sat</th></tr></thead>
+          <tbody id="planTableBody"></tbody>
+        </table>
+      </div>
+    </details>
   </section>
 
   <section class="grid-2">
@@ -872,16 +942,16 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
   var WEIGHT_KEY = "runlog.weights.v1";
 
   var TARGETS = {
-    "10K": [9 * 60, 9 * 60 + 30],
-    "5K": [8 * 60 + 45, 9 * 60 + 15],
+    "10K": [9 * 60 + 15, 9 * 60 + 30],   // Pace plan goal by Nov 21
+    "5K": [8 * 60 + 50, 9 * 60 + 5],     // Pace plan goal by Nov 21
     "8K": [8 * 60 + 55, 9 * 60 + 20]
   };
 
   var RACES = [
-    { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds" },
-    { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena" },
-    { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park" },
-    { name: "Publix Gasparilla Distance Classic 8K", date: "2027-02-21", time: "9:15 AM (confirm 2027 schedule)", place: "Platt St & Bayshore Blvd" }
+    { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds", url: "https://bubblerun.com/registration-tampa" },
+    { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena", url: "https://moffitt.org/give/get-involved/miles-for-moffitt" },
+    { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park", url: "https://hotchocolate15k.com/city/tampa/" },
+    { name: "Publix Gasparilla Distance Classic 8K", date: "2027-02-21", time: "9:15 AM (confirm 2027 schedule)", place: "Platt St & Bayshore Blvd", url: "https://www.tampabayrun.com" }
   ].sort(function (a, b) { return a.date.localeCompare(b.date); });
 
   var WEEK = [
@@ -893,6 +963,67 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
     { name: "Sat", activity: "Bootcamp" },
     { name: "Sun", activity: "Rest" }
   ];
+
+  // ---------- 5K & 10K Pace Plan (Sep 28 – Nov 21, 2026) ----------
+  var PACE_PLAN = {
+    title: "5K & 10K Pace Plan",
+    goals: "10K 9:15–9:30/mi (57:30–1:00:00) · 5K 8:50–9:05/mi (27:30–28:15)",
+    zones: [
+      { name: "Easy", pace: "11:00–11:45", feel: "Full conversation" },
+      { name: "Tempo", pace: "9:40–9:50 (9:30–9:40 from Wk 5)", feel: "Short phrases only" },
+      { name: "Interval", pace: "8:45–9:00", feel: "Hard, controlled" },
+      { name: "Strides", pace: "4 × 20 sec", feel: "Fast and relaxed" }
+    ],
+    tips: [
+      "Quality runs: 1 mi easy warm-up + 1 mi easy cool-down (not counted).",
+      "Cadence 170–175 steps/min — shorter, quicker steps.",
+      "Hot Tampa day: slow easy & tempo 20–40 sec/mi, run by effort.",
+      "Knee sore? Swap that run for rest — don't make it up."
+    ],
+    weeks: [
+      { n: 1, start: "2026-09-28", block: "Settle in", tue: "4 × 800m @ 8:50–9:00, 2:30 jog", thu: "2 mi easy", fri: "5 mi easy + 4 strides", sat: "Bootcamp" },
+      { n: 2, start: "2026-10-05", block: "Settle in", tue: "Tempo 20 min @ 9:40–9:50", thu: "2.5 mi easy", fri: "5.5 mi easy + 4 strides", sat: "Bootcamp" },
+      { n: 3, start: "2026-10-12", block: "Sharpen for Bubble Run", tue: "4 × 400m @ 8:30–8:45, 2 min jog (light)", wed: "Weights (light, no heavy legs)", thu: "2 mi easy, no leg weights", fri: "Rest or 15-min shakeout", sat: "🏁 Bubble Run 5K (~9:05–9:15, no bootcamp)" },
+      { n: 4, start: "2026-10-19", block: "Build 10K endurance", tue: "5 × 800m @ 8:45–9:00, 2:30 jog", thu: "3 mi easy", fri: "6 mi easy + 4 strides", sat: "Bootcamp" },
+      { n: 5, start: "2026-10-26", block: "Build 10K endurance", tue: "Tempo 25 min @ 9:30–9:40", thu: "3 mi easy", fri: "6.5 mi easy + 4 strides", sat: "Bootcamp" },
+      { n: 6, start: "2026-11-02", block: "Peak week", tue: "3 × 1 mi @ 9:05–9:15, 3 min jog", thu: "3 mi easy", fri: "7 mi: 5 easy, last 2 @ 9:40", sat: "Bootcamp",
+        note: "Check-in: all three miles under 9:15 comfortably → aim 9:15/mi in the 10K. Otherwise aim 9:30." },
+      { n: 7, start: "2026-11-09", block: "Taper", tue: "Tempo 2 × 12 min @ 9:30–9:40, 3 min jog", thu: "3 mi easy", fri: "5 mi easy + 4 strides", sat: "Bootcamp (go easy)" },
+      { n: 8, start: "2026-11-16", block: "Race week", tue: "3 × 800m @ 8:50, 2:30 jog", wed: "Weights (light)", thu: "2 mi easy, no weights", fri: "15-min shakeout + 3 strides, or rest", sat: "🏁 Miles for Moffitt 10K + 5K",
+        note: "10K: 9:30 for miles 1–2, goal pace miles 3–4, push from mile 5. 5K: by feel ~9:30–9:45. Between: walk 5 min, electrolytes, banana or gel." }
+    ]
+  };
+
+  function planDays(w) {
+    return [
+      { name: "Mon", activity: "Rest / mobility" },
+      { name: "Tue", activity: w.tue, quality: true },
+      { name: "Wed", activity: w.wed || "Weights (heavy legs here)" },
+      { name: "Thu", activity: w.thu + " + stretch" },
+      { name: "Fri", activity: w.fri },
+      { name: "Sat", activity: w.sat, race: /🏁/.test(w.sat) },
+      { name: "Sun", activity: "Rest" }
+    ];
+  }
+
+  function currentPlanWeek(today) {
+    var t = today || new Date();
+    var iso = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
+    for (var i = PACE_PLAN.weeks.length - 1; i >= 0; i--) {
+      var w = PACE_PLAN.weeks[i];
+      var end = new Date(w.start + "T00:00:00"); end.setDate(end.getDate() + 6);
+      var endIso = end.getFullYear() + "-" + String(end.getMonth() + 1).padStart(2, "0") + "-" + String(end.getDate()).padStart(2, "0");
+      if (iso >= w.start && iso <= endIso) return w;
+    }
+    return null;
+  }
+
+  function weekRange(w) {
+    var a = new Date(w.start + "T00:00:00");
+    var b = new Date(a); b.setDate(b.getDate() + 6);
+    var o = { month: "short", day: "numeric" };
+    return a.toLocaleDateString(undefined, o) + "–" + b.toLocaleDateString(undefined, o);
+  }
 
   function loadJSON(key) {
     try {
@@ -1200,8 +1331,14 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
     el.innerHTML = "";
     RACES.forEach(function (race) {
       var days = daysBetween(race.date);
-      var card = document.createElement("div");
-      card.className = "race-card" + (days < 0 ? " past" : "");
+      var card = document.createElement(race.url ? "a" : "div");
+      card.className = "race-card" + (days < 0 ? " past" : "") + (race.url ? " linked" : "");
+      if (race.url) {
+        card.href = race.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+        card.title = "Open " + race.name + " website";
+      }
       var label = days < 0 ? "days ago" : (days === 0 ? "today" : "days to go");
       var value = Math.abs(days);
       card.innerHTML =
@@ -1221,12 +1358,39 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
     el.innerHTML = "";
     var jsDay = new Date().getDay(); // 0 = Sun
     var todayIndex = jsDay === 0 ? 6 : jsDay - 1; // convert to Mon=0..Sun=6
-    WEEK.forEach(function (day, i) {
+    var pw = currentPlanWeek();
+    var days = pw ? planDays(pw) : WEEK;
+    var head = document.getElementById("planWeekHead");
+    if (head) {
+      head.innerHTML = pw
+        ? '<span class="plan-pill">Week ' + pw.n + ' of 8</span> ' + weekRange(pw) + ' &middot; ' + escapeHtml(pw.block) +
+          (pw.note ? '<div class="plan-note">' + escapeHtml(pw.note) + '</div>' : '')
+        : '<span class="plan-pill">Default week</span> Pace plan not active this week';
+    }
+    days.forEach(function (day, i) {
       var div = document.createElement("div");
-      div.className = "week-day" + (i === todayIndex ? " today" : "");
-      div.innerHTML = '<div class="d-name">' + day.name + '</div><div class="d-activity">' + day.activity + '</div>';
+      div.className = "week-day" + (i === todayIndex ? " today" : "") + (day.quality ? " quality" : "") + (day.race ? " race" : "");
+      div.innerHTML = '<div class="d-name">' + day.name + '</div><div class="d-activity">' + escapeHtml(day.activity) + '</div>';
       el.appendChild(div);
     });
+    renderPlan(pw);
+  }
+
+  function renderPlan(pw) {
+    var z = document.getElementById("planZones");
+    if (!z) return;
+    z.innerHTML = PACE_PLAN.zones.map(function (zn) {
+      return '<div class="zone"><div class="zone-name">' + zn.name + '</div><div class="zone-pace">' + escapeHtml(zn.pace) +
+        '</div><div class="zone-feel">' + escapeHtml(zn.feel) + '</div></div>';
+    }).join("");
+    document.getElementById("planGoals").textContent = "Goals by Nov 21: " + PACE_PLAN.goals;
+    document.getElementById("planTips").innerHTML = PACE_PLAN.tips.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join("");
+    var rows = PACE_PLAN.weeks.map(function (w) {
+      return '<tr' + (pw && pw.n === w.n ? ' class="current"' : '') + '><td><strong>' + w.n + '</strong> &middot; ' + weekRange(w) +
+        '<div class="plan-block">' + escapeHtml(w.block) + '</div></td><td>' + escapeHtml(w.tue) + '</td><td>' + escapeHtml(w.thu) +
+        '</td><td>' + escapeHtml(w.fri) + '</td><td>' + escapeHtml(w.sat) + '</td></tr>';
+    }).join("");
+    document.getElementById("planTableBody").innerHTML = rows;
   }
 
   // ---------- Runs ----------
@@ -2113,34 +2277,5 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
   initCloud();
 })();
 </script>
-<style>
-/* ===== Phone readability fix: keep the light palette in dark mode, dark text in fields ===== */
-:root { color-scheme: light; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #FFF8F1; --panel: #FFFFFF; --ink: #17233C; --ink-soft: #40506B; --slate: #66758F;
-    --line: rgba(23,35,60,.12); --line-strong: rgba(23,35,60,.22);
-    --clay: #E53935; --clay-soft: rgba(229,57,53,.10); --amber: #F5A623; --amber-soft: rgba(245,166,35,.14);
-    --good: #14A77A; --good-soft: rgba(20,167,122,.11); --bad: #D93025;
-  }
-}
-input, select, textarea {
-  color: #0F1A2E !important;
-  -webkit-text-fill-color: #0F1A2E;
-  caret-color: #173F8A;
-  background-color: #FFFFFF;
-  font-size: 16px;
-  opacity: 1;
-}
-input::placeholder, textarea::placeholder {
-  color: #7A869C !important;
-  -webkit-text-fill-color: #7A869C;
-  opacity: 1;
-}
-input:-webkit-autofill {
-  -webkit-text-fill-color: #0F1A2E !important;
-  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
-}
-</style>
 </body>
 </html>
