@@ -672,6 +672,25 @@ input:-webkit-autofill {
   -webkit-text-fill-color: #0F1A2E !important;
   -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
 }
+
+/* ===== Water intake ===== */
+.water-grid { display:grid; grid-template-columns: 1fr 1.2fr; gap: 18px; }
+@media (max-width: 600px) { .water-grid { grid-template-columns: 1fr; } }
+.water-bar { height: 16px; border-radius: 999px; background: var(--brand-blue-soft); border: 1px solid var(--line); overflow: hidden; }
+.water-fill { height: 100%; width: 0; background: linear-gradient(90deg, #6CC6F0, var(--brand-blue)); transition: width .3s ease; }
+.water-fill.done { background: linear-gradient(90deg, #6CC6F0, var(--good)); }
+.water-sub { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 6px 0 12px; }
+.water-sub.done { color: var(--good); font-weight: 600; }
+.water-quick { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 12px; }
+.water-quick .btn { padding: 8px 14px; align-self: auto; }
+.water-week { display:grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; padding: 12px 10px 8px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow: var(--shadow); }
+.ww-col { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; font-family: var(--font-mono); font-size: 10px; color: var(--slate); cursor: pointer; background: none; border: 0; padding: 0; }
+.ww-track { height: 84px; width: 100%; max-width: 30px; display:flex; align-items:flex-end; border-bottom: 1px solid var(--line-strong); }
+.ww-bar { width: 100%; border-radius: 6px 6px 2px 2px; background: #A9DCF5; min-height: 2px; }
+.ww-bar.met { background: var(--brand-blue); }
+.ww-col.sel .ww-day { color: var(--brand-coral); font-weight: 700; }
+.water-stats { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 8px 0 10px; }
+#waterSection table { min-width: 0; }
 </style>
 </head>
 <body>
@@ -692,7 +711,7 @@ input:-webkit-autofill {
   <section id="cloudSection">
     <h2>Cloud sync</h2>
     <p style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 14px;">
-      Back up runs, weight, blood pressure, and bootcamp to your private Supabase SQL database. This browser keeps a local copy, so the tracker still works offline.
+      Back up runs, weight, blood pressure, bootcamp, and water to your private Supabase SQL database. This browser keeps a local copy, so the tracker still works offline.
     </p>
     <div id="cloudStatus" class="calc-result" style="margin-top:0;">Not set up &mdash; data is only in this browser.</div>
     <form id="cloudSetupForm" style="margin-top:14px;">
@@ -851,6 +870,54 @@ input:-webkit-autofill {
         </table>
       </div>
       <div class="empty" id="bootcampEmpty" style="display:none;">No bootcamp sessions logged yet.</div>
+    </div>
+  </section>
+
+  <section id="waterSection">
+    <h2>Water intake</h2>
+    <div class="water-grid">
+      <div>
+        <div class="weight-current" id="waterToday"></div>
+        <div class="water-bar"><div class="water-fill" id="waterFill"></div></div>
+        <div class="water-sub" id="waterSub"></div>
+        <div class="water-quick">
+          <button type="button" class="btn ghost" data-oz="8">+8 oz cup</button>
+          <button type="button" class="btn ghost" data-oz="16.9">+16.9 oz bottle</button>
+          <button type="button" class="btn ghost" data-oz="24">+24 oz</button>
+          <button type="button" class="btn ghost" data-oz="32">+32 oz</button>
+          <button type="button" class="btn ghost" data-oz="40">+40 oz</button>
+          <button type="button" class="btn ghost" id="waterUndo">Undo last</button>
+        </div>
+        <form id="waterForm">
+          <div class="field">
+            <label for="waterDate">Date</label>
+            <input type="date" id="waterDate" required>
+          </div>
+          <div class="field">
+            <label for="waterOz">Amount (oz)</label>
+            <input type="number" id="waterOz" step="0.1" min="0" placeholder="12" style="width:90px;" required>
+          </div>
+          <button type="submit" class="btn ghost">Add</button>
+        </form>
+        <form id="waterGoalForm" style="margin-top:10px;">
+          <div class="field">
+            <label for="waterGoal">Daily goal (oz)</label>
+            <input type="number" id="waterGoal" step="1" min="1" style="width:90px;">
+          </div>
+          <button type="submit" class="btn ghost">Set goal</button>
+        </form>
+      </div>
+      <div>
+        <div class="water-week" id="waterWeek"></div>
+        <div class="water-stats" id="waterStats"></div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Time</th><th>Amount</th><th></th></tr></thead>
+            <tbody id="waterBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="waterEmpty" style="display:none;">Nothing logged for this day yet.</div>
+      </div>
     </div>
   </section>
 
@@ -1061,6 +1128,7 @@ input:-webkit-autofill {
     if (key === "runlog.weights.v1") return "weights";
     if (key === "runlog.bp.v1") return "bp";
     if (key === "runlog.bootcamp.v1") return "bootcamp";
+    if (key === "runlog.water.v1") return "water";
     return null;
   }
 
@@ -1128,7 +1196,8 @@ input:-webkit-autofill {
       pushKind("runs", runs),
       pushKind("weights", weights),
       pushKind("bp", bpReadings),
-      pushKind("bootcamp", bootcamp)
+      pushKind("bootcamp", bootcamp),
+      pushKind("water", water)
     ]);
   }
 
@@ -1139,10 +1208,12 @@ input:-webkit-autofill {
       weights = Array.isArray(d.weights) ? d.weights : [];
       bpReadings = Array.isArray(d.bp) ? d.bp : [];
       bootcamp = Array.isArray(d.bootcamp) ? d.bootcamp : [];
+      if (Array.isArray(d.water)) water = d.water;
       saveJSON("runlog.runs.v1", runs);
       saveJSON("runlog.weights.v1", weights);
       saveJSON("runlog.bp.v1", bpReadings);
       saveJSON("runlog.bootcamp.v1", bootcamp);
+      saveJSON("runlog.water.v1", water);
     } finally {
       cloudApplying = false;
     }
@@ -1150,6 +1221,7 @@ input:-webkit-autofill {
     renderWeight();
     renderBP();
     renderBootcamp();
+    renderWater();
     renderProgress();
   }
 
@@ -1785,6 +1857,151 @@ input:-webkit-autofill {
     document.getElementById("bcDate").value = date;
   });
 
+  // ---------- Water intake ----------
+  var WATER_KEY = "runlog.water.v1";
+  var WATER_GOAL_KEY = "runlog.watergoal.v1";
+  var water = loadJSON(WATER_KEY);
+
+  function isoDay(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function fmtOz(v) { return String(Math.round(v * 10) / 10); }
+  function fmtClock(t) {
+    if (!t) return "—";
+    var p = t.split(":"); var h = parseInt(p[0], 10);
+    return ((h % 12) || 12) + ":" + p[1] + (h < 12 ? " AM" : " PM");
+  }
+  function waterGoal() {
+    try { var g = parseFloat(localStorage.getItem(WATER_GOAL_KEY)); if (g > 0) return g; } catch (e) { /* ignore */ }
+    if (weights.length) {
+      var ws = weights.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      return Math.round(ws[ws.length - 1].val / 2); // common rule of thumb: half your body weight (lb) in oz
+    }
+    return 96;
+  }
+  function waterDay() {
+    var el = document.getElementById("waterDate");
+    return (el && el.value) || isoDay(new Date());
+  }
+  function waterTotal(date) {
+    return water.reduce(function (s, r) { return r.date === date ? s + (Number(r.oz) || 0) : s; }, 0);
+  }
+
+  function renderWater() {
+    var day = waterDay();
+    var goal = waterGoal();
+    var total = waterTotal(day);
+    var isToday = day === isoDay(new Date());
+    var met = total >= goal;
+
+    document.getElementById("waterToday").innerHTML =
+      '<span class="val">' + fmtOz(total) + '</span><span class="delta">of ' + fmtOz(goal) + ' oz ' +
+      (isToday ? "today" : "on " + fmtDateDisplay(day)) + '</span>';
+    var fill = document.getElementById("waterFill");
+    fill.style.width = Math.min(100, (total / goal) * 100).toFixed(1) + "%";
+    fill.classList.toggle("done", met);
+    var sub = document.getElementById("waterSub");
+    sub.classList.toggle("done", met);
+    sub.textContent = met
+      ? "Goal reached" + (total > goal ? " (+" + fmtOz(total - goal) + " oz)" : "") + " — nice work."
+      : fmtOz(goal - total) + " oz to go · about " + Math.ceil((goal - total) / 8) + " more cups";
+    var goalEl = document.getElementById("waterGoal");
+    if (document.activeElement !== goalEl) goalEl.value = fmtOz(goal);
+
+    // Last 7 days ending on the selected day
+    var end = new Date(day + "T00:00:00");
+    var days = [];
+    for (var i = 6; i >= 0; i--) { var d = new Date(end); d.setDate(d.getDate() - i); days.push(isoDay(d)); }
+    var totals = days.map(waterTotal);
+    var scale = Math.max(goal, Math.max.apply(null, totals)) || 1;
+    var week = document.getElementById("waterWeek");
+    week.innerHTML = days.map(function (ds, i) {
+      var dd = new Date(ds + "T00:00:00");
+      return '<button type="button" class="ww-col' + (ds === day ? " sel" : "") + '" data-day="' + ds + '" title="' +
+        fmtDateDisplay(ds) + ': ' + fmtOz(totals[i]) + ' oz">' +
+        '<span>' + (totals[i] ? fmtOz(totals[i]) : "") + '</span>' +
+        '<span class="ww-track"><span class="ww-bar' + (totals[i] >= goal ? " met" : "") + '" style="height:' +
+        ((totals[i] / scale) * 100).toFixed(1) + '%"></span></span>' +
+        '<span class="ww-day">' + dd.toLocaleDateString(undefined, { weekday: "short" }) + '</span></button>';
+    }).join("");
+    week.querySelectorAll(".ww-col").forEach(function (b) {
+      b.addEventListener("click", function () {
+        document.getElementById("waterDate").value = b.getAttribute("data-day");
+        renderWater();
+      });
+    });
+
+    // Streak (today counts once the goal is met) and 7-day average
+    var streak = 0;
+    var cur = new Date();
+    if (waterTotal(isoDay(cur)) < goal) cur.setDate(cur.getDate() - 1);
+    while (waterTotal(isoDay(cur)) >= goal) { streak++; cur.setDate(cur.getDate() - 1); }
+    var avg = totals.reduce(function (s, v) { return s + v; }, 0) / 7;
+    var metDays = totals.filter(function (v) { return v >= goal; }).length;
+    document.getElementById("waterStats").textContent =
+      "7-day avg " + fmtOz(avg) + " oz · goal met " + metDays + "/7 days · streak " + streak + (streak === 1 ? " day" : " days");
+
+    // Entries for the selected day
+    var body = document.getElementById("waterBody");
+    var entries = water.filter(function (r) { return r.date === day; })
+      .sort(function (a, b) { return String(b.time || "").localeCompare(String(a.time || "")) || (b.id - a.id); });
+    document.getElementById("waterEmpty").style.display = entries.length ? "none" : "block";
+    body.innerHTML = "";
+    entries.forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td>' + fmtClock(r.time) + '</td><td>' + fmtOz(Number(r.oz) || 0) + ' oz</td>' +
+        '<td><button class="row-del" data-id="' + r.id + '" title="Delete">&times;</button></td>';
+      body.appendChild(tr);
+    });
+    body.querySelectorAll(".row-del").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-id");
+        water = water.filter(function (r) { return String(r.id) !== String(id); });
+        saveJSON(WATER_KEY, water);
+        renderWater();
+      });
+    });
+  }
+
+  function addWater(oz) {
+    if (!(oz > 0)) return;
+    var now = new Date();
+    water.push({ id: Date.now(), date: waterDay(), oz: Math.round(oz * 10) / 10,
+      time: String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") });
+    saveJSON(WATER_KEY, water);
+    renderWater();
+  }
+
+  document.getElementById("waterDate").value = isoDay(new Date());
+  document.getElementById("waterDate").addEventListener("change", renderWater);
+  document.querySelectorAll("#waterSection [data-oz]").forEach(function (b) {
+    b.addEventListener("click", function () { addWater(parseFloat(b.getAttribute("data-oz"))); });
+  });
+  document.getElementById("waterUndo").addEventListener("click", function () {
+    var day = waterDay();
+    var last = water.filter(function (r) { return r.date === day; })
+      .sort(function (a, b) { return b.id - a.id; })[0];
+    if (!last) return;
+    water = water.filter(function (r) { return r !== last; });
+    saveJSON(WATER_KEY, water);
+    renderWater();
+  });
+  document.getElementById("waterForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var oz = parseFloat(document.getElementById("waterOz").value);
+    if (!(oz > 0)) { alert("Enter how many ounces you drank."); return; }
+    addWater(oz);
+    document.getElementById("waterOz").value = "";
+  });
+  document.getElementById("waterGoalForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var g = parseFloat(document.getElementById("waterGoal").value);
+    if (!(g > 0)) { alert("Enter a daily goal in ounces."); return; }
+    try { localStorage.setItem(WATER_GOAL_KEY, String(g)); } catch (err) { /* ignore */ }
+    document.getElementById("waterGoal").blur();
+    renderWater();
+  });
+
   // ---------- Overhaul progress (combined dashboard) ----------
   function monthKey(dateStr) { return dateStr.slice(0, 7); }
 
@@ -2273,6 +2490,7 @@ input:-webkit-autofill {
   renderWeight();
   renderBP();
   renderBootcamp();
+  renderWater();
   renderProgress();
   initCloud();
 })();
