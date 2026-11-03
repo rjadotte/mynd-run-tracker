@@ -936,6 +936,8 @@ h2 .hint { margin: 0; }
       seed: { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds" } },
     { match: /moffitt/i, url: "https://moffitt.org/give/get-involved/miles-for-moffitt",
       seed: { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena" } },
+    { match: /strong over 50/i, url: "https://events.strongoverfifty.com/armatureworks",
+      seed: { name: "Strong Over 50 Experience", date: "2026-11-15", time: "1:00 PM – 4:00 PM · World Record Attempt", place: "Armature Works, 1910 N Ola Ave" } },
     { match: /hot chocolate/i, url: "https://www.letsdothis.com/invite/6ab734e977e534cb834c6f4a?utm_source=experience_share&utm_medium=copy_link&utm_campaign=participant_invite",
       seed: { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park" } },
     { match: /gasparilla/i, url: "https://www.rungasparilla.com/8k-course-information/",
@@ -954,6 +956,20 @@ h2 .hint { margin: 0; }
     var k = KNOWN_RACES.find(function (k) { return k.match.test(r.name || ""); });
     if (k) r.url = k.url;
   });
+  // One-time add of newly announced community races to devices that already saved a race list
+  (function () {
+    var ADDED_KEY = "runlog.races.added.strongover50";
+    try {
+      if (!racesSaved || localStorage.getItem(ADDED_KEY)) return;
+      if (!RACES.some(function (r) { return /strong over 50/i.test(r.name || ""); })) {
+        var k = KNOWN_RACES.find(function (k) { return k.match.test("Strong Over 50"); });
+        var r = Object.assign({}, k.seed); r.url = k.url;
+        RACES.push(r);
+        localStorage.setItem(RACES_KEY, JSON.stringify(RACES));
+      }
+      localStorage.setItem(ADDED_KEY, "1");
+    } catch (e) {}
+  })();
   function sortRaces() { RACES.sort(function (a, b) { return a.date.localeCompare(b.date); }); }
   sortRaces();
 
