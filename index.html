@@ -545,6 +545,21 @@ header.top .tagline { color: rgba(255,255,255,.88); position: relative; z-index:
 .race-card .days { color: var(--brand-blue); }
 .race-card .race-name { color: var(--ink); font-weight: 700; }
 .race-card .race-date, .race-card .days-label { color: var(--slate); }
+.race-card.linked { display:block; text-decoration:none; color:inherit; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
+.race-card.linked:hover, .race-card.linked:focus-visible { transform:translateY(-3px); box-shadow:0 10px 24px rgba(30,60,140,0.16); }
+.race-card.linked:focus-visible { outline:3px solid var(--brand-blue); outline-offset:3px; }
+.race-card.linked .race-name::after { content:" \2197"; font-size:.8em; color:var(--brand-coral); }
+.race-card.past .days { color: var(--brand-coral); }
+.race-photo { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:12px; margin-top:12px; cursor:zoom-in; border:1px solid var(--line); background:var(--line); }
+.race-photo-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.race-photo-btn { font:inherit; font-family:var(--font-mono); font-size:12px; padding:7px 11px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--brand-blue); cursor:pointer; }
+.race-photo-btn:hover, .race-photo-btn:focus-visible { border-color:var(--brand-blue); }
+.race-photo-btn.primary { background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
+.race-photo-btn.remove { color:var(--slate); }
+.race-photo-status { font-family:var(--font-mono); font-size:11px; color:var(--slate); margin-top:6px; min-height:1em; }
+.photo-lightbox { position:fixed; inset:0; z-index:1000; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(10,16,30,.86); cursor:zoom-out; }
+.photo-lightbox.open { display:flex; }
+.photo-lightbox img { max-width:100%; max-height:100%; border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,.4); }
 
 section { margin-bottom: 32px; }
 section > h2 {
@@ -565,6 +580,27 @@ section > h2::before { content:""; display:inline-block; width:8px; height:8px; 
 }
 .week-day.today { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); border:2px solid var(--brand-coral); transform: translateY(-2px); }
 .week-day.today .d-name { color: var(--brand-coral); font-weight:700; }
+.week-day.quality { border-top: 3px solid var(--brand-blue); }
+.week-day.race { border-top: 3px solid var(--brand-coral); }
+.plan-week-head { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: -4px 0 12px; }
+.plan-pill { display:inline-block; background: var(--brand-blue); color:#fff; border-radius: 999px; padding: 2px 10px; margin-right: 6px; font-weight:700; }
+.plan-note { margin-top: 8px; padding: 8px 12px; border-left: 3px solid var(--brand-yellow); background: rgba(255,255,255,.7); border-radius: 8px; color: var(--ink); }
+.plan-goals { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin-bottom: 12px; }
+.zones { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+@media (max-width: 720px) { .zones { grid-template-columns: 1fr 1fr; } }
+.zone { background: rgba(255,255,255,.86); border:1px solid var(--line); border-radius: 14px; padding: 12px; }
+.zone-name { font-weight:700; color: var(--brand-blue); font-size: 14px; }
+.zone-pace { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin: 4px 0 2px; }
+.zone-feel { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
+.plan-tips { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 12px; padding-left: 18px; line-height: 1.6; }
+.plan-details summary { cursor:pointer; font-weight:700; color: var(--brand-blue); padding: 6px 0; }
+.plan-scroll { overflow-x:auto; }
+.plan-table { width:100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
+.plan-table th, .plan-table td { text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.plan-table th { font-family: var(--font-mono); font-size: 11px; color: var(--slate); font-weight: 500; }
+.plan-table tr.current td { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); }
+.plan-table td:first-child { white-space: nowrap; }
+.plan-block { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
 
 .grid-2 { gap: 18px; }
 
@@ -619,43 +655,53 @@ footer { max-width:1120px; border-top:0; padding:18px 22px; text-align:center; }
   .races { gap:11px; }
 }
 
-.setup { margin: -8px 0 22px; font-family: var(--font-mono); font-size: 13px; }
-.setup summary { cursor: pointer; color: var(--brand-blue, var(--ink)); margin-bottom: 10px; }
-.hint { font-family: var(--font-mono); font-size: 12px; color: var(--slate); font-weight: 400; margin: -6px 0 10px; }
-h2 .hint { margin: 0; }
-.week-day { cursor: pointer; }
-.race-card { position: relative; }
-.race-del { position:absolute; top:6px; right:8px; background:none; border:0; font-size:16px; cursor:pointer; color: var(--slate); }
-.race-card.linked { cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; }
-.race-card.linked:hover, .race-card.linked:focus-visible { transform:translateY(-3px); box-shadow:0 10px 24px rgba(30,60,140,0.16); }
-.race-card.linked:focus-visible { outline:3px solid var(--brand-blue); outline-offset:3px; }
-.race-card.linked .race-name::after { content:" \2197"; font-size:.8em; color:var(--brand-coral); }
-.race-card .race-name { padding-right: 18px; }
-.week-day.plan { cursor: default; }
-.week-day.quality { border-top: 3px solid var(--brand-blue); }
-.week-day.race { border-top: 3px solid var(--brand-coral); }
-.plan-toggle { display:inline-flex; align-items:center; gap:8px; font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin: -4px 0 8px; cursor:pointer; }
-.plan-toggle input { width:18px; height:18px; accent-color: var(--brand-blue); }
-.plan-week-head { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 12px; }
-.plan-pill { display:inline-block; background: var(--brand-blue); color:#fff; border-radius: 999px; padding: 2px 10px; margin-right: 6px; font-weight:700; }
-.plan-note { margin-top: 8px; padding: 8px 12px; border-left: 3px solid var(--brand-yellow); background: rgba(255,255,255,.7); border-radius: 8px; color: var(--ink); }
-.plan-goals { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin-bottom: 12px; }
-.zones { display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
-@media (max-width: 720px) { .zones { grid-template-columns: 1fr 1fr; } }
-.zone { background: rgba(255,255,255,.86); border:1px solid var(--line); border-radius: 14px; padding: 12px; }
-.zone-name { font-weight:700; color: var(--brand-blue); font-size: 14px; }
-.zone-pace { font-family: var(--font-mono); font-size: 13px; color: var(--ink); margin: 4px 0 2px; }
-.zone-feel { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
-.plan-tips { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 12px; padding-left: 18px; line-height: 1.6; }
-.plan-details summary { cursor:pointer; font-weight:700; color: var(--brand-blue); padding: 6px 0; }
-.plan-scroll { overflow-x:auto; }
-.plan-table { width:100%; border-collapse: collapse; font-size: 13px; min-width: 620px; }
-.plan-table th, .plan-table td { text-align:left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-.plan-table th { font-family: var(--font-mono); font-size: 11px; color: var(--slate); font-weight: 500; }
-.plan-table td:first-child { white-space: nowrap; }
-.plan-table tr.current td { background: linear-gradient(145deg, #FFF0EA, #FFF8DF); }
-.plan-block { font-family: var(--font-mono); font-size: 11px; color: var(--slate); }
-.races-empty { font-family: var(--font-mono); font-size: 13px; color: var(--slate); padding: 4px 0 10px; }
+
+/* ===== Phone readability fix: keep the light palette in dark mode, dark text in fields ===== */
+:root { color-scheme: light; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #FFF8F1; --panel: #FFFFFF; --ink: #17233C; --ink-soft: #40506B; --slate: #66758F;
+    --line: rgba(23,35,60,.12); --line-strong: rgba(23,35,60,.22);
+    --clay: #E53935; --clay-soft: rgba(229,57,53,.10); --amber: #F5A623; --amber-soft: rgba(245,166,35,.14);
+    --good: #14A77A; --good-soft: rgba(20,167,122,.11); --bad: #D93025;
+  }
+}
+input, select, textarea {
+  color: #0F1A2E !important;
+  -webkit-text-fill-color: #0F1A2E;
+  caret-color: #173F8A;
+  background-color: #FFFFFF;
+  font-size: 16px; /* 16px+ also stops iPhone from zooming in on tap */
+  opacity: 1;
+}
+input::placeholder, textarea::placeholder {
+  color: #7A869C !important;
+  -webkit-text-fill-color: #7A869C;
+  opacity: 1;
+}
+input:-webkit-autofill {
+  -webkit-text-fill-color: #0F1A2E !important;
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+}
+
+/* ===== Water intake ===== */
+.water-grid { display:grid; grid-template-columns: 1fr 1.2fr; gap: 18px; }
+@media (max-width: 600px) { .water-grid { grid-template-columns: 1fr; } }
+.water-bar { height: 16px; border-radius: 999px; background: var(--brand-blue-soft); border: 1px solid var(--line); overflow: hidden; }
+.water-fill { height: 100%; width: 0; background: linear-gradient(90deg, #6CC6F0, var(--brand-blue)); transition: width .3s ease; }
+.water-fill.done { background: linear-gradient(90deg, #6CC6F0, var(--good)); }
+.water-sub { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 6px 0 12px; }
+.water-sub.done { color: var(--good); font-weight: 600; }
+.water-quick { display:flex; flex-wrap:wrap; gap:8px; margin-bottom: 12px; }
+.water-quick .btn { padding: 8px 14px; align-self: auto; }
+.water-week { display:grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; padding: 12px 10px 8px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow: var(--shadow); }
+.ww-col { display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; font-family: var(--font-mono); font-size: 10px; color: var(--slate); cursor: pointer; background: none; border: 0; padding: 0; }
+.ww-track { height: 84px; width: 100%; max-width: 30px; display:flex; align-items:flex-end; border-bottom: 1px solid var(--line-strong); }
+.ww-bar { width: 100%; border-radius: 6px 6px 2px 2px; background: #A9DCF5; min-height: 2px; }
+.ww-bar.met { background: var(--brand-blue); }
+.ww-col.sel .ww-day { color: var(--brand-coral); font-weight: 700; }
+.water-stats { font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 8px 0 10px; }
+#waterSection table { min-width: 0; }
 </style>
 </head>
 <body>
@@ -667,30 +713,48 @@ h2 .hint { margin: 0; }
   </header>
 
   <div class="races" id="races"></div>
-  <details class="setup" id="raceSetup">
-    <summary>Add a race you're training for</summary>
-    <form id="raceForm">
-      <div class="field"><label for="raceName">Race name</label><input type="text" id="raceName" placeholder="Community 5K" required></div>
-      <div class="field"><label for="raceDate">Date</label><input type="date" id="raceDate" required></div>
-      <div class="field"><label for="raceTime">Start time (optional)</label><input type="text" id="raceTime" placeholder="7:30 AM"></div>
-      <div class="field"><label for="racePlace">Location (optional)</label><input type="text" id="racePlace"></div>
-      <div class="field"><label for="raceUrl">Race website (optional)</label><input type="url" id="raceUrl" placeholder="https://"></div>
-      <button type="submit" class="btn ghost">Add race</button>
-    </form>
-  </details>
+  <input type="file" id="racePhotoInput" accept="image/*" hidden>
+  <div class="photo-lightbox" id="photoLightbox" role="dialog" aria-label="Race photo" tabindex="-1"><img alt=""></div>
 
   <section style="margin-bottom: 24px;">
     <button type="button" class="btn ghost" id="exportPdfBtn">Export PDF summary</button>
-    <button type="button" class="btn ghost" id="backupBtn">Back up my data</button>
-    <button type="button" class="btn ghost" id="restoreBtn">Restore backup</button>
-    <input type="file" id="restoreFile" accept=".json,application/json" style="display:none;">
     <span id="exportStatus" style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin-left: 12px;"></span>
+  </section>
+
+  <section id="cloudSection">
+    <h2>Cloud sync</h2>
+    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--slate); margin: 0 0 14px;">
+      Back up runs, weight, blood pressure, bootcamp, and water to your private Supabase SQL database. This browser keeps a local copy, so the tracker still works offline.
+    </p>
+    <div id="cloudStatus" class="calc-result" style="margin-top:0;">Not set up &mdash; data is only in this browser.</div>
+    <form id="cloudSetupForm" style="margin-top:14px;">
+      <div class="field">
+        <label for="cloudUrl">Supabase project URL</label>
+        <input type="url" id="cloudUrl" placeholder="https://xxxx.supabase.co" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="cloudKey">Anon public key</label>
+        <input type="text" id="cloudKey" placeholder="eyJhbGciOi..." autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="cloudEmail">Email</label>
+        <input type="email" id="cloudEmail" autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="cloudPass">Password</label>
+        <input type="password" id="cloudPass" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn">Sign in &amp; sync</button>
+    </form>
+    <div id="cloudSignedIn" style="display:none; margin-top:14px;">
+      <button type="button" class="btn ghost" id="cloudSyncBtn">Sync now</button>
+      <button type="button" class="btn ghost" id="cloudPushBtn">Upload this browser's data</button>
+      <button type="button" class="btn ghost" id="cloudSignOutBtn">Sign out</button>
+    </div>
   </section>
 
   <section>
     <h2>This week</h2>
-    <label class="plan-toggle"><input type="checkbox" id="usePlanToggle" checked> Follow the 5K &amp; 10K pace plan</label>
-    <p class="hint" id="weekHint">Tap a day to set your own plan.</p>
     <div class="plan-week-head" id="planWeekHead"></div>
     <div class="week-strip" id="weekStrip"></div>
   </section>
@@ -764,7 +828,7 @@ h2 .hint { margin: 0; }
     </div>
 
     <div>
-      <h2>Blood pressure <span class="hint">(optional)</span></h2>
+      <h2>Blood pressure</h2>
       <div class="weight-current" id="bpCurrent"></div>
       <svg class="spark" id="bpSpark" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
       <form id="bpForm">
@@ -819,6 +883,54 @@ h2 .hint { margin: 0; }
         </table>
       </div>
       <div class="empty" id="bootcampEmpty" style="display:none;">No bootcamp sessions logged yet.</div>
+    </div>
+  </section>
+
+  <section id="waterSection">
+    <h2>Water intake</h2>
+    <div class="water-grid">
+      <div>
+        <div class="weight-current" id="waterToday"></div>
+        <div class="water-bar"><div class="water-fill" id="waterFill"></div></div>
+        <div class="water-sub" id="waterSub"></div>
+        <div class="water-quick">
+          <button type="button" class="btn ghost" data-oz="8">+8 oz cup</button>
+          <button type="button" class="btn ghost" data-oz="16.9">+16.9 oz bottle</button>
+          <button type="button" class="btn ghost" data-oz="24">+24 oz</button>
+          <button type="button" class="btn ghost" data-oz="32">+32 oz</button>
+          <button type="button" class="btn ghost" data-oz="40">+40 oz</button>
+          <button type="button" class="btn ghost" id="waterUndo">Undo last</button>
+        </div>
+        <form id="waterForm">
+          <div class="field">
+            <label for="waterDate">Date</label>
+            <input type="date" id="waterDate" required>
+          </div>
+          <div class="field">
+            <label for="waterOz">Amount (oz)</label>
+            <input type="number" id="waterOz" step="0.1" min="0" placeholder="12" style="width:90px;" required>
+          </div>
+          <button type="submit" class="btn ghost">Add</button>
+        </form>
+        <form id="waterGoalForm" style="margin-top:10px;">
+          <div class="field">
+            <label for="waterGoal">Daily goal (oz)</label>
+            <input type="number" id="waterGoal" step="1" min="1" style="width:90px;">
+          </div>
+          <button type="submit" class="btn ghost">Set goal</button>
+        </form>
+      </div>
+      <div>
+        <div class="water-week" id="waterWeek"></div>
+        <div class="water-stats" id="waterStats"></div>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Time</th><th>Amount</th><th></th></tr></thead>
+            <tbody id="waterBody"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="waterEmpty" style="display:none;">Nothing logged for this day yet.</div>
+      </div>
     </div>
   </section>
 
@@ -895,19 +1007,12 @@ h2 .hint { margin: 0; }
       <button type="button" class="btn ghost" id="calcTimeBtn">Get finish time</button>
     </form>
     <div class="calc-result" id="calcResult">Enter distance + time, or distance + pace.</div>
-    <div class="target-ref" id="targetRef"></div>
-    <h2 style="margin-top:22px;">My target paces</h2>
-    <form id="targetForm">
-      <div class="field"><label for="t5k">5K (min/mi, e.g. 9:00-9:30)</label><input type="text" id="t5k" class="time-input" placeholder="9:00-9:30"></div>
-      <div class="field"><label for="t8k">8K</label><input type="text" id="t8k" class="time-input" placeholder="9:15-9:45"></div>
-      <div class="field"><label for="t10k">10K</label><input type="text" id="t10k" class="time-input" placeholder="9:30-10:00"></div>
-      <button type="submit" class="btn ghost">Save targets</button>
-    </form>
+    <div class="target-ref">10K target pace: 9:00&ndash;9:30 /mi &nbsp;&middot;&nbsp; 5K target pace: 8:45&ndash;9:15 /mi &nbsp;&middot;&nbsp; 8K target pace: 8:55&ndash;9:20 /mi</div>
   </section>
 
 </div>
 
-<footer>Your entries are saved only in this browser, on this device. Nobody else can see them, not even the organizers. Use "Back up my data" to keep a copy or move to a new phone.</footer>
+<footer id="storageFooter">Data is stored privately in this browser only.</footer>
 
 <script>
 (function () {
@@ -916,81 +1021,34 @@ h2 .hint { margin: 0; }
   var RUNS_KEY = "runlog.runs.v1";
   var WEIGHT_KEY = "runlog.weights.v1";
 
-  var TARGETS_KEY = "runlog.targets.v1";
-  var RACES_KEY = "runlog.races.v1";
-  var WEEK_KEY = "runlog.week.v1";
+  var TARGETS = {
+    "10K": [9 * 60 + 15, 9 * 60 + 30],   // Pace plan goal by Nov 21
+    "5K": [8 * 60 + 50, 9 * 60 + 5],     // Pace plan goal by Nov 21
+    "8K": [8 * 60 + 55, 9 * 60 + 20]
+  };
 
-  function loadObj(key, fallback) {
-    try {
-      var raw = localStorage.getItem(key);
-      if (!raw) return fallback;
-      var parsed = JSON.parse(raw);
-      return parsed && typeof parsed === "object" ? parsed : fallback;
-    } catch (e) { return fallback; }
-  }
+  var RACES = [
+    { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds", url: "https://bubblerun.com/registration-tampa" },
+    { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena", url: "https://moffitt.org/give/get-involved/miles-for-moffitt" },
+    { name: "Strong Over 50 Experience", date: "2026-11-15", time: "1:00 PM – 4:00 PM · World Record Attempt", place: "Armature Works, 1910 N Ola Ave", url: "https://events.strongoverfifty.com/armatureworks" },
+    { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park", url: "https://www.letsdothis.com/invite/6ab734e977e534cb834c6f4a?utm_source=experience_share&utm_medium=copy_link&utm_campaign=participant_invite" },
+    { name: "Publix Gasparilla Distance Classic 8K", date: "2027-02-21", time: "9:15 AM (confirm 2027 schedule)", place: "Platt St & Bayshore Blvd", url: "https://www.rungasparilla.com/8k-course-information/" }
+  ].sort(function (a, b) { return a.date.localeCompare(b.date); });
 
-  var TARGETS = loadObj(TARGETS_KEY, {});
-
-  var KNOWN_RACES = [
-    { match: /bubble run/i, url: "https://bubblerun.com/registration-tampa",
-      seed: { name: "Bubble Run Tampa 5K", date: "2026-10-17", time: "Heat time on confirmation", place: "Florida State Fairgrounds" } },
-    { match: /moffitt/i, url: "https://moffitt.org/give/get-involved/miles-for-moffitt",
-      seed: { name: "Miles for Moffitt 10K + 5K", date: "2026-11-21", time: "10K 6:30 AM · 5K 8:00 AM", place: "Benchmark International Arena" } },
-    { match: /strong over 50/i, url: "https://events.strongoverfifty.com/armatureworks",
-      seed: { name: "Strong Over 50 Experience", date: "2026-11-15", time: "1:00 PM – 4:00 PM · World Record Attempt", place: "Armature Works, 1910 N Ola Ave" } },
-    { match: /hot chocolate/i, url: "https://www.letsdothis.com/invite/6ab734e977e534cb834c6f4a?utm_source=experience_share&utm_medium=copy_link&utm_campaign=participant_invite",
-      seed: { name: "SKECHERS Hot Chocolate Run 10K", date: "2026-12-13", time: "8:00 AM", place: "Cotanchobee Fort Brooke Park" } },
-    { match: /gasparilla/i, url: "https://www.rungasparilla.com/8k-course-information/",
-      seed: { name: "Publix Gasparilla Distance Classic 8K", date: "2027-02-21", time: "9:15 AM (confirm 2027 schedule)", place: "Platt St & Bayshore Blvd" } }
+  var WEEK = [
+    { name: "Mon", activity: "Rest / mobility" },
+    { name: "Tue", activity: "10K run" },
+    { name: "Wed", activity: "Rest, stretch + weights" },
+    { name: "Thu", activity: "Rest, stretch + weights" },
+    { name: "Fri", activity: "5K run" },
+    { name: "Sat", activity: "Bootcamp" },
+    { name: "Sun", activity: "Rest" }
   ];
-  var racesSaved = false;
-  try { racesSaved = localStorage.getItem(RACES_KEY) !== null; } catch (e) {}
-  var RACES = loadObj(RACES_KEY, []);
-  if (!Array.isArray(RACES)) RACES = [];
-  if (!racesSaved) {
-    // First visit: start with the community race calendar (each runner can remove or add races)
-    RACES = KNOWN_RACES.map(function (k) { var r = Object.assign({}, k.seed); r.url = k.url; return r; });
-  }
-  RACES.forEach(function (r) {
-    if (r.url) return;
-    var k = KNOWN_RACES.find(function (k) { return k.match.test(r.name || ""); });
-    if (k) r.url = k.url;
-  });
-  // One-time add of newly announced community races to devices that already saved a race list
-  (function () {
-    var ADDED_KEY = "runlog.races.added.strongover50";
-    try {
-      if (!racesSaved || localStorage.getItem(ADDED_KEY)) return;
-      if (!RACES.some(function (r) { return /strong over 50/i.test(r.name || ""); })) {
-        var k = KNOWN_RACES.find(function (k) { return k.match.test("Strong Over 50"); });
-        var r = Object.assign({}, k.seed); r.url = k.url;
-        RACES.push(r);
-        localStorage.setItem(RACES_KEY, JSON.stringify(RACES));
-      }
-      localStorage.setItem(ADDED_KEY, "1");
-    } catch (e) {}
-  })();
-  function sortRaces() { RACES.sort(function (a, b) { return a.date.localeCompare(b.date); }); }
-  sortRaces();
-
-  var WEEK = loadObj(WEEK_KEY, null);
-  if (!Array.isArray(WEEK) || WEEK.length !== 7) {
-    WEEK = [
-      { name: "Mon", activity: "Rest" },
-      { name: "Tue", activity: "Run" },
-      { name: "Wed", activity: "Cross-train" },
-      { name: "Thu", activity: "Run" },
-      { name: "Fri", activity: "Rest" },
-      { name: "Sat", activity: "Long run or bootcamp" },
-      { name: "Sun", activity: "Rest" }
-    ];
-  }
 
   // ---------- 5K & 10K Pace Plan (Sep 28 – Nov 21, 2026) ----------
-  var PLAN_KEY = "runlog.useplan.v1";
-  var USE_PLAN = (function () { try { return localStorage.getItem(PLAN_KEY) !== "0"; } catch (e) { return true; } })();
   var PACE_PLAN = {
-    goals: "Build to the Miles for Moffitt 10K + 5K on Nov 21 — one fast day, the rest easy and longer.",
+    title: "5K & 10K Pace Plan",
+    goals: "10K 9:15–9:30/mi (57:30–1:00:00) · 5K 8:50–9:05/mi (27:30–28:15)",
     zones: [
       { name: "Easy", pace: "11:00–11:45", feel: "Full conversation" },
       { name: "Tempo", pace: "9:40–9:50 (9:30–9:40 from Wk 5)", feel: "Short phrases only" },
@@ -1016,7 +1074,7 @@ h2 .hint { margin: 0; }
         note: "10K: 9:30 for miles 1–2, goal pace miles 3–4, push from mile 5. 5K: by feel ~9:30–9:45. Between: walk 5 min, electrolytes, banana or gel." }
     ]
   };
-  function isoDay(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+
   function planDays(w) {
     return [
       { name: "Mon", activity: "Rest / mobility" },
@@ -1028,15 +1086,19 @@ h2 .hint { margin: 0; }
       { name: "Sun", activity: "Rest" }
     ];
   }
-  function currentPlanWeek() {
-    var iso = isoDay(new Date());
+
+  function currentPlanWeek(today) {
+    var t = today || new Date();
+    var iso = t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0");
     for (var i = PACE_PLAN.weeks.length - 1; i >= 0; i--) {
       var w = PACE_PLAN.weeks[i];
       var end = new Date(w.start + "T00:00:00"); end.setDate(end.getDate() + 6);
-      if (iso >= w.start && iso <= isoDay(end)) return w;
+      var endIso = end.getFullYear() + "-" + String(end.getMonth() + 1).padStart(2, "0") + "-" + String(end.getDate()).padStart(2, "0");
+      if (iso >= w.start && iso <= endIso) return w;
     }
     return null;
   }
+
   function weekRange(w) {
     var a = new Date(w.start + "T00:00:00");
     var b = new Date(a); b.setDate(b.getDate() + 6);
@@ -1061,6 +1123,264 @@ h2 .hint { margin: 0; }
     } catch (e) {
       console.error("Could not save", key, e);
     }
+    queueCloudPush(key, data);
+  }
+
+  // ---------- Cloud sync (Supabase SQL database) ----------
+  // localStorage stays the working copy; every save is mirrored to Supabase.
+  var CLOUD_CFG_KEY = "mynd.cloud.config.v1";
+  var CLOUD_DIRTY_KEY = "mynd.cloud.dirty.v1";
+  var SUPABASE_SDK = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  var sbClient = null;
+  var cloudUser = null;
+  var cloudApplying = false;
+  var cloudTimers = {};
+  var cloudPending = 0;
+
+  function cloudKind(key) {
+    if (key === "runlog.runs.v1") return "runs";
+    if (key === "runlog.weights.v1") return "weights";
+    if (key === "runlog.bp.v1") return "bp";
+    if (key === "runlog.bootcamp.v1") return "bootcamp";
+    if (key === "runlog.water.v1") return "water";
+    if (key === "runlog.racephotos.v1") return "racephotos";
+    return null;
+  }
+
+  function cloudCfg() {
+    try { return JSON.parse(localStorage.getItem(CLOUD_CFG_KEY) || "null"); } catch (e) { return null; }
+  }
+  function setCloudCfg(cfg) {
+    try { localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cfg)); } catch (e) { /* ignore */ }
+  }
+  function setDirty(v) {
+    try { if (v) localStorage.setItem(CLOUD_DIRTY_KEY, "1"); else localStorage.removeItem(CLOUD_DIRTY_KEY); } catch (e) { /* ignore */ }
+  }
+  function isDirty() {
+    try { return localStorage.getItem(CLOUD_DIRTY_KEY) === "1"; } catch (e) { return false; }
+  }
+  function setCloudStatus(msg) {
+    var el = document.getElementById("cloudStatus");
+    if (el) el.textContent = msg;
+  }
+  function syncedMsg() {
+    return "Synced " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) +
+      (cloudUser && cloudUser.email ? " · " + cloudUser.email : "");
+  }
+  function hasPendingTimers() {
+    for (var k in cloudTimers) { if (cloudTimers[k]) return true; }
+    return false;
+  }
+
+  function queueCloudPush(key, data) {
+    if (cloudApplying) return;
+    var kind = cloudKind(key);
+    if (!kind || !cloudCfg()) return;
+    setDirty(true);
+    if (!sbClient || !cloudUser) {
+      setCloudStatus("Saved in this browser — sign in to sync.");
+      return;
+    }
+    clearTimeout(cloudTimers[kind]);
+    cloudTimers[kind] = setTimeout(function () {
+      cloudTimers[kind] = null;
+      pushKind(kind, data).catch(function () { /* status already set */ });
+    }, 600);
+  }
+
+  function pushKind(kind, data) {
+    if (kind === "racephotos") return pushPhotos(data);
+    cloudPending++;
+    setCloudStatus("Syncing…");
+    return sbClient.rpc("replace_dataset", { p_kind: kind, p_rows: data || [] }).then(function (res) {
+      if (res.error) throw res.error;
+      cloudPending--;
+      if (cloudPending === 0 && !hasPendingTimers()) {
+        setDirty(false);
+        setCloudStatus(syncedMsg());
+      }
+    }).catch(function (err) {
+      cloudPending = Math.max(0, cloudPending - 1);
+      setDirty(true);
+      setCloudStatus("Sync failed — saved in this browser, will retry on next sync. (" + (err && err.message ? err.message : err) + ")");
+      throw err;
+    });
+  }
+
+  // Race photos sync on a best-effort basis: if the database hasn't been
+  // updated to accept the "racephotos" dataset, photos stay in this browser.
+  function pushPhotos(data) {
+    return sbClient.rpc("replace_dataset", { p_kind: "racephotos", p_rows: data || [] }).then(function (res) {
+      if (res.error) throw res.error;
+    }).catch(function (err) {
+      console.warn("Race photos not synced (kept in this browser):", err && err.message ? err.message : err);
+    });
+  }
+
+  function pushAll() {
+    return Promise.all([
+      pushKind("runs", runs),
+      pushKind("weights", weights),
+      pushKind("bp", bpReadings),
+      pushKind("bootcamp", bootcamp),
+      pushKind("water", water),
+      pushPhotos(racePhotos)
+    ]);
+  }
+
+  function applyCloud(d) {
+    cloudApplying = true;
+    try {
+      runs = Array.isArray(d.runs) ? d.runs : [];
+      weights = Array.isArray(d.weights) ? d.weights : [];
+      bpReadings = Array.isArray(d.bp) ? d.bp : [];
+      bootcamp = Array.isArray(d.bootcamp) ? d.bootcamp : [];
+      if (Array.isArray(d.water)) water = d.water;
+      if (Array.isArray(d.racephotos) && d.racephotos.length) {
+        racePhotos = d.racephotos;
+        try { localStorage.setItem(RACE_PHOTOS_KEY, JSON.stringify(racePhotos)); } catch (e) { /* ignore */ }
+      } else if (racePhotos.length && sbClient && cloudUser) {
+        pushPhotos(racePhotos);
+      }
+      saveJSON("runlog.runs.v1", runs);
+      saveJSON("runlog.weights.v1", weights);
+      saveJSON("runlog.bp.v1", bpReadings);
+      saveJSON("runlog.bootcamp.v1", bootcamp);
+      saveJSON("runlog.water.v1", water);
+    } finally {
+      cloudApplying = false;
+    }
+    renderRaces();
+    renderRuns();
+    renderWeight();
+    renderBP();
+    renderBootcamp();
+    renderWater();
+    renderProgress();
+  }
+
+  // Pull from the database. If this browser has unsynced edits, or the
+  // database is still empty, upload the local copy instead.
+  function pullAll() {
+    setCloudStatus("Loading from cloud…");
+    return sbClient.rpc("get_all").then(function (res) {
+      if (res.error) throw res.error;
+      var d = res.data || {};
+      var cloudEmpty = !(d.runs || []).length && !(d.weights || []).length &&
+        !(d.bp || []).length && !(d.bootcamp || []).length;
+      var localHas = runs.length || weights.length || bpReadings.length || bootcamp.length;
+      if (isDirty() || (cloudEmpty && localHas)) {
+        return pushAll();
+      }
+      applyCloud(d);
+      setDirty(false);
+      setCloudStatus(syncedMsg());
+    }).catch(function (err) {
+      setCloudStatus("Sync failed — using this browser's copy. (" + (err && err.message ? err.message : err) + ")");
+    });
+  }
+
+  function loadSupabaseSdk() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SUPABASE_SDK;
+      s.onload = function () { resolve(); };
+      s.onerror = function () { reject(new Error("couldn't load the Supabase library — are you offline?")); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function makeClient(cfg) {
+    return loadSupabaseSdk().then(function () {
+      sbClient = window.supabase.createClient(cfg.url, cfg.key, {
+        auth: { persistSession: true, autoRefreshToken: true, storageKey: "mynd.cloud.auth" }
+      });
+      return sbClient;
+    });
+  }
+
+  function showCloudUi() {
+    var cfg = cloudCfg() || {};
+    var signedIn = !!cloudUser;
+    document.getElementById("cloudSetupForm").style.display = signedIn ? "none" : "";
+    document.getElementById("cloudSignedIn").style.display = signedIn ? "" : "none";
+    if (!signedIn) {
+      if (cfg.url) document.getElementById("cloudUrl").value = cfg.url;
+      if (cfg.key) document.getElementById("cloudKey").value = cfg.key;
+      if (cfg.email) document.getElementById("cloudEmail").value = cfg.email;
+    }
+    var footer = document.getElementById("storageFooter");
+    if (footer) {
+      footer.textContent = signedIn
+        ? "Data syncs to your private Supabase database; a copy stays in this browser."
+        : "Data is stored privately in this browser only.";
+    }
+  }
+
+  function initCloud() {
+    document.getElementById("cloudSetupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var url = document.getElementById("cloudUrl").value.trim().replace(/\/+$/, "");
+      var key = document.getElementById("cloudKey").value.trim();
+      var email = document.getElementById("cloudEmail").value.trim();
+      var passEl = document.getElementById("cloudPass");
+      var pass = passEl.value;
+      if (!/^https:\/\/.+/.test(url) || !key || !email || !pass) {
+        setCloudStatus("Enter the project URL, anon key, email, and password.");
+        return;
+      }
+      var cfg = { url: url, key: key, email: email };
+      setCloudCfg(cfg);
+      setCloudStatus("Signing in…");
+      sbClient = null;
+      makeClient(cfg).then(function () {
+        return sbClient.auth.signInWithPassword({ email: email, password: pass });
+      }).then(function (res) {
+        if (res.error) throw res.error;
+        passEl.value = "";
+        cloudUser = res.data.user;
+        showCloudUi();
+        return pullAll();
+      }).catch(function (err) {
+        setCloudStatus("Sign-in failed: " + (err && err.message ? err.message : err));
+      });
+    });
+
+    document.getElementById("cloudSyncBtn").addEventListener("click", function () {
+      if (sbClient && cloudUser) pullAll();
+    });
+
+    document.getElementById("cloudPushBtn").addEventListener("click", function () {
+      if (!sbClient || !cloudUser) return;
+      if (!confirm("Replace everything in the cloud database with what's in this browser?")) return;
+      setCloudStatus("Uploading…");
+      pushAll().catch(function () { /* status already set */ });
+    });
+
+    document.getElementById("cloudSignOutBtn").addEventListener("click", function () {
+      var done = function () {
+        cloudUser = null;
+        showCloudUi();
+        setCloudStatus("Signed out — data stays in this browser.");
+      };
+      if (sbClient) sbClient.auth.signOut().then(done, done); else done();
+    });
+
+    var cfg = cloudCfg();
+    showCloudUi();
+    if (!cfg) return;
+    setCloudStatus("Connecting…");
+    makeClient(cfg).then(function () {
+      return sbClient.auth.getSession();
+    }).then(function (res) {
+      cloudUser = res && res.data && res.data.session ? res.data.session.user : null;
+      showCloudUi();
+      if (cloudUser) return pullAll();
+      setCloudStatus(isDirty() ? "Signed out — local changes are waiting to sync." : "Signed out — sign in to sync.");
+    }).catch(function (err) {
+      setCloudStatus("Offline — using this browser's copy. (" + (err && err.message ? err.message : err) + ")");
+    });
   }
 
   function parseTimeToSeconds(str) {
@@ -1112,65 +1432,154 @@ h2 .hint { margin: 0; }
   }
 
   // ---------- Races ----------
+  var RACE_PHOTOS_KEY = "runlog.racephotos.v1";
+  var racePhotos = loadJSON(RACE_PHOTOS_KEY);
+  var photoTargetRace = null;
+
+  function raceId(race) { return race.date + "|" + race.name; }
+  function photoFor(race) {
+    var id = raceId(race);
+    for (var i = 0; i < racePhotos.length; i++) { if (racePhotos[i].race === id) return racePhotos[i]; }
+    return null;
+  }
+  function saveRacePhotos() {
+    try {
+      localStorage.setItem(RACE_PHOTOS_KEY, JSON.stringify(racePhotos));
+    } catch (e) {
+      alert("This browser is out of storage space for photos. Remove an older race photo and try again.");
+      return false;
+    }
+    queueCloudPush(RACE_PHOTOS_KEY, racePhotos);
+    return true;
+  }
+
+  // Shrink the picture so it fits comfortably in browser storage and the database.
+  function compressImage(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var max = 1280;
+        var scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("That file couldn't be opened as a picture. Try a JPG or PNG (HEIC may not work in every browser)."));
+      };
+      img.src = url;
+    });
+  }
+
+  function openLightbox(src, alt) {
+    var lb = document.getElementById("photoLightbox");
+    var im = lb.querySelector("img");
+    im.src = src; im.alt = alt || "";
+    lb.classList.add("open");
+    lb.focus();
+  }
+  function closeLightbox() { document.getElementById("photoLightbox").classList.remove("open"); }
+  document.getElementById("photoLightbox").addEventListener("click", closeLightbox);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLightbox(); });
+
+  document.getElementById("racePhotoInput").addEventListener("change", function () {
+    var file = this.files && this.files[0];
+    var race = photoTargetRace;
+    this.value = "";
+    if (!file || !race) return;
+    compressImage(file).then(function (dataUrl) {
+      var id = raceId(race);
+      racePhotos = racePhotos.filter(function (p) { return p.race !== id; });
+      racePhotos.push({ race: id, name: race.name, date: race.date, img: dataUrl, added: new Date().toISOString() });
+      saveRacePhotos();
+      renderRaces();
+    }).catch(function (err) { alert(err.message); });
+  });
+
+  function photoButton(text, cls, handler) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "race-photo-btn" + (cls ? " " + cls : "");
+    b.textContent = text;
+    b.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      handler();
+    });
+    return b;
+  }
+
   function renderRaces() {
     var el = document.getElementById("races");
     el.innerHTML = "";
-    if (RACES.length === 0) {
-      el.innerHTML = '<div class="races-empty">No races yet. Add one below to see a countdown.</div>';
-      return;
-    }
-    RACES.forEach(function (race, idx) {
+    RACES.forEach(function (race) {
       var days = daysBetween(race.date);
-      var card = document.createElement("div");
-      card.className = "race-card" + (days < 0 ? " past" : "") + (race.url ? " linked" : "");
+      var past = days < 0;
+      var card = document.createElement(race.url ? "a" : "div");
+      card.className = "race-card" + (past ? " past" : "") + (race.url ? " linked" : "");
       if (race.url) {
-        card.setAttribute("role", "link");
-        card.tabIndex = 0;
+        card.href = race.url;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
         card.title = "Open " + race.name + " website";
-        var open = function () { window.open(race.url, "_blank", "noopener"); };
-        card.addEventListener("click", function (e) { if (!e.target.closest(".race-del")) open(); });
-        card.addEventListener("keydown", function (e) { if (e.key === "Enter") open(); });
       }
-      var label = days < 0 ? "days ago" : (days === 0 ? "today" : "days to go");
-      var value = Math.abs(days);
+      var label, value;
+      if (past) {
+        value = "✓";
+        label = "Completed · " + Math.abs(days) + (Math.abs(days) === 1 ? " day ago" : " days ago");
+      } else {
+        value = days;
+        label = days === 0 ? "today" : (days === 1 ? "day to go" : "days to go");
+      }
       card.innerHTML =
-        '<button class="race-del" data-idx="' + idx + '" title="Remove race">&times;</button>' +
         '<div class="race-name">' + escapeHtml(race.name) + '</div>' +
         '<div class="race-date">' + fmtDateDisplay(race.date) + '</div>' +
         '<div class="days">' + value + '</div>' +
         '<div class="days-label">' + label + '</div>' +
-        ((race.time || race.place) ? '<div class="race-meta">' + (race.time ? escapeHtml(race.time) : "") +
-          (race.time && race.place ? '<br>' : "") + (race.place ? escapeHtml(race.place) : "") + '</div>' : "");
+        ((race.time || race.place) && !past ? '<div class="race-meta">' + (race.time ? escapeHtml(race.time) : "") +
+          (race.time && race.place ? '<br>' : "") + (race.place ? escapeHtml(race.place) : "") + '</div>' : "") +
+        (past && race.place ? '<div class="race-meta">' + escapeHtml(race.place) + '</div>' : "");
+
+      if (past) {
+        var photo = photoFor(race);
+        if (photo) {
+          var img = document.createElement("img");
+          img.className = "race-photo";
+          img.src = photo.img;
+          img.alt = race.name + " photo";
+          img.title = "View full size";
+          img.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openLightbox(photo.img, img.alt);
+          });
+          card.appendChild(img);
+        }
+        var actions = document.createElement("div");
+        actions.className = "race-photo-actions";
+        actions.appendChild(photoButton(photo ? "Change photo" : "📷 Add photo", photo ? "" : "primary", function () {
+          photoTargetRace = race;
+          document.getElementById("racePhotoInput").click();
+        }));
+        if (photo) {
+          actions.appendChild(photoButton("Remove", "remove", function () {
+            if (!confirm("Remove the photo from " + race.name + "?")) return;
+            var id = raceId(race);
+            racePhotos = racePhotos.filter(function (p) { return p.race !== id; });
+            saveRacePhotos();
+            renderRaces();
+          }));
+        }
+        card.appendChild(actions);
+      }
       el.appendChild(card);
     });
-    el.querySelectorAll(".race-del").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        if (!confirm("Remove this race?")) return;
-        RACES.splice(Number(btn.getAttribute("data-idx")), 1);
-        saveJSON(RACES_KEY, RACES);
-        renderRaces();
-      });
-    });
   }
-
-  document.getElementById("raceForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var name = document.getElementById("raceName").value.trim();
-    var date = document.getElementById("raceDate").value;
-    if (!name || !date) return;
-    RACES.push({ name: name, date: date,
-      time: document.getElementById("raceTime").value.trim(),
-      place: document.getElementById("racePlace").value.trim(),
-      url: (function () {
-        var u = document.getElementById("raceUrl").value.trim();
-        if (!u) { var k = KNOWN_RACES.find(function (k) { return k.match.test(name); }); return k ? k.url : ""; }
-        return /^https?:\/\//i.test(u) ? u : "https://" + u;
-      })() });
-    sortRaces();
-    saveJSON(RACES_KEY, RACES);
-    renderRaces();
-    e.target.reset();
-  });
 
   // ---------- Week strip ----------
   function renderWeek() {
@@ -1179,43 +1588,21 @@ h2 .hint { margin: 0; }
     var jsDay = new Date().getDay(); // 0 = Sun
     var todayIndex = jsDay === 0 ? 6 : jsDay - 1; // convert to Mon=0..Sun=6
     var pw = currentPlanWeek();
-    var usingPlan = USE_PLAN && !!pw;
+    var days = pw ? planDays(pw) : WEEK;
     var head = document.getElementById("planWeekHead");
-    var hint = document.getElementById("weekHint");
-    var toggle = document.getElementById("usePlanToggle");
-    if (toggle) toggle.checked = USE_PLAN;
     if (head) {
-      head.innerHTML = usingPlan
+      head.innerHTML = pw
         ? '<span class="plan-pill">Week ' + pw.n + ' of 8</span> ' + weekRange(pw) + ' &middot; ' + escapeHtml(pw.block) +
           (pw.note ? '<div class="plan-note">' + escapeHtml(pw.note) + '</div>' : '')
-        : (USE_PLAN ? '<span class="plan-pill">My plan</span> Pace plan not active this week' : '');
+        : '<span class="plan-pill">Default week</span> Pace plan not active this week';
     }
-    if (hint) hint.textContent = usingPlan ? "Following the pace plan. Turn it off to set your own days." : "Tap a day to set your own plan.";
-    if (usingPlan) {
-      planDays(pw).forEach(function (day, i) {
-        var div = document.createElement("div");
-        div.className = "week-day plan" + (i === todayIndex ? " today" : "") + (day.quality ? " quality" : "") + (day.race ? " race" : "");
-        div.innerHTML = '<div class="d-name">' + day.name + '</div><div class="d-activity">' + escapeHtml(day.activity) + '</div>';
-        el.appendChild(div);
-      });
-      renderPlan(pw);
-      return;
-    }
-    renderPlan(pw);
-    WEEK.forEach(function (day, i) {
+    days.forEach(function (day, i) {
       var div = document.createElement("div");
-      div.className = "week-day" + (i === todayIndex ? " today" : "");
+      div.className = "week-day" + (i === todayIndex ? " today" : "") + (day.quality ? " quality" : "") + (day.race ? " race" : "");
       div.innerHTML = '<div class="d-name">' + day.name + '</div><div class="d-activity">' + escapeHtml(day.activity) + '</div>';
-      div.title = "Tap to change";
-      div.addEventListener("click", function () {
-        var next = prompt("Plan for " + day.name + ":", day.activity);
-        if (next === null) return;
-        WEEK[i].activity = next.trim() || "Rest";
-        saveJSON(WEEK_KEY, WEEK);
-        renderWeek();
-      });
       el.appendChild(div);
     });
+    renderPlan(pw);
   }
 
   function renderPlan(pw) {
@@ -1225,23 +1612,26 @@ h2 .hint { margin: 0; }
       return '<div class="zone"><div class="zone-name">' + zn.name + '</div><div class="zone-pace">' + escapeHtml(zn.pace) +
         '</div><div class="zone-feel">' + escapeHtml(zn.feel) + '</div></div>';
     }).join("");
-    document.getElementById("planGoals").textContent = PACE_PLAN.goals;
+    document.getElementById("planGoals").textContent = "Goals by Nov 21: " + PACE_PLAN.goals;
     document.getElementById("planTips").innerHTML = PACE_PLAN.tips.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join("");
-    document.getElementById("planTableBody").innerHTML = PACE_PLAN.weeks.map(function (w) {
+    var rows = PACE_PLAN.weeks.map(function (w) {
       return '<tr' + (pw && pw.n === w.n ? ' class="current"' : '') + '><td><strong>' + w.n + '</strong> &middot; ' + weekRange(w) +
         '<div class="plan-block">' + escapeHtml(w.block) + '</div></td><td>' + escapeHtml(w.tue) + '</td><td>' + escapeHtml(w.thu) +
         '</td><td>' + escapeHtml(w.fri) + '</td><td>' + escapeHtml(w.sat) + '</td></tr>';
     }).join("");
+    document.getElementById("planTableBody").innerHTML = rows;
   }
-
-  document.getElementById("usePlanToggle").addEventListener("change", function (e) {
-    USE_PLAN = e.target.checked;
-    try { localStorage.setItem(PLAN_KEY, USE_PLAN ? "1" : "0"); } catch (err) {}
-    renderWeek();
-  });
 
   // ---------- Runs ----------
   var runs = loadJSON(RUNS_KEY);
+  (function fixHalfMarathons() {
+    var changed = false;
+    runs.forEach(function (r) {
+      if (r.type === "Other" && Math.abs(r.dist - 13.1) <= 0.3) { r.type = "Half Marathon"; changed = true; }
+      if (r.type === "Other" && r.date === "2026-09-11" && Math.abs(r.dist - 10.01) <= 0.05) { r.type = "15K"; changed = true; }
+    });
+    if (changed) saveJSON(RUNS_KEY, runs);
+  })();
   var RUNS_PAGE_SIZE = 10;
   var runsShown = RUNS_PAGE_SIZE;
 
@@ -1624,6 +2014,151 @@ h2 .hint { margin: 0; }
     document.getElementById("bcDate").value = date;
   });
 
+  // ---------- Water intake ----------
+  var WATER_KEY = "runlog.water.v1";
+  var WATER_GOAL_KEY = "runlog.watergoal.v1";
+  var water = loadJSON(WATER_KEY);
+
+  function isoDay(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function fmtOz(v) { return String(Math.round(v * 10) / 10); }
+  function fmtClock(t) {
+    if (!t) return "—";
+    var p = t.split(":"); var h = parseInt(p[0], 10);
+    return ((h % 12) || 12) + ":" + p[1] + (h < 12 ? " AM" : " PM");
+  }
+  function waterGoal() {
+    try { var g = parseFloat(localStorage.getItem(WATER_GOAL_KEY)); if (g > 0) return g; } catch (e) { /* ignore */ }
+    if (weights.length) {
+      var ws = weights.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+      return Math.round(ws[ws.length - 1].val / 2); // common rule of thumb: half your body weight (lb) in oz
+    }
+    return 96;
+  }
+  function waterDay() {
+    var el = document.getElementById("waterDate");
+    return (el && el.value) || isoDay(new Date());
+  }
+  function waterTotal(date) {
+    return water.reduce(function (s, r) { return r.date === date ? s + (Number(r.oz) || 0) : s; }, 0);
+  }
+
+  function renderWater() {
+    var day = waterDay();
+    var goal = waterGoal();
+    var total = waterTotal(day);
+    var isToday = day === isoDay(new Date());
+    var met = total >= goal;
+
+    document.getElementById("waterToday").innerHTML =
+      '<span class="val">' + fmtOz(total) + '</span><span class="delta">of ' + fmtOz(goal) + ' oz ' +
+      (isToday ? "today" : "on " + fmtDateDisplay(day)) + '</span>';
+    var fill = document.getElementById("waterFill");
+    fill.style.width = Math.min(100, (total / goal) * 100).toFixed(1) + "%";
+    fill.classList.toggle("done", met);
+    var sub = document.getElementById("waterSub");
+    sub.classList.toggle("done", met);
+    sub.textContent = met
+      ? "Goal reached" + (total > goal ? " (+" + fmtOz(total - goal) + " oz)" : "") + " — nice work."
+      : fmtOz(goal - total) + " oz to go · about " + Math.ceil((goal - total) / 8) + " more cups";
+    var goalEl = document.getElementById("waterGoal");
+    if (document.activeElement !== goalEl) goalEl.value = fmtOz(goal);
+
+    // Last 7 days ending on the selected day
+    var end = new Date(day + "T00:00:00");
+    var days = [];
+    for (var i = 6; i >= 0; i--) { var d = new Date(end); d.setDate(d.getDate() - i); days.push(isoDay(d)); }
+    var totals = days.map(waterTotal);
+    var scale = Math.max(goal, Math.max.apply(null, totals)) || 1;
+    var week = document.getElementById("waterWeek");
+    week.innerHTML = days.map(function (ds, i) {
+      var dd = new Date(ds + "T00:00:00");
+      return '<button type="button" class="ww-col' + (ds === day ? " sel" : "") + '" data-day="' + ds + '" title="' +
+        fmtDateDisplay(ds) + ': ' + fmtOz(totals[i]) + ' oz">' +
+        '<span>' + (totals[i] ? fmtOz(totals[i]) : "") + '</span>' +
+        '<span class="ww-track"><span class="ww-bar' + (totals[i] >= goal ? " met" : "") + '" style="height:' +
+        ((totals[i] / scale) * 100).toFixed(1) + '%"></span></span>' +
+        '<span class="ww-day">' + dd.toLocaleDateString(undefined, { weekday: "short" }) + '</span></button>';
+    }).join("");
+    week.querySelectorAll(".ww-col").forEach(function (b) {
+      b.addEventListener("click", function () {
+        document.getElementById("waterDate").value = b.getAttribute("data-day");
+        renderWater();
+      });
+    });
+
+    // Streak (today counts once the goal is met) and 7-day average
+    var streak = 0;
+    var cur = new Date();
+    if (waterTotal(isoDay(cur)) < goal) cur.setDate(cur.getDate() - 1);
+    while (waterTotal(isoDay(cur)) >= goal) { streak++; cur.setDate(cur.getDate() - 1); }
+    var avg = totals.reduce(function (s, v) { return s + v; }, 0) / 7;
+    var metDays = totals.filter(function (v) { return v >= goal; }).length;
+    document.getElementById("waterStats").textContent =
+      "7-day avg " + fmtOz(avg) + " oz · goal met " + metDays + "/7 days · streak " + streak + (streak === 1 ? " day" : " days");
+
+    // Entries for the selected day
+    var body = document.getElementById("waterBody");
+    var entries = water.filter(function (r) { return r.date === day; })
+      .sort(function (a, b) { return String(b.time || "").localeCompare(String(a.time || "")) || (b.id - a.id); });
+    document.getElementById("waterEmpty").style.display = entries.length ? "none" : "block";
+    body.innerHTML = "";
+    entries.forEach(function (r) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td>' + fmtClock(r.time) + '</td><td>' + fmtOz(Number(r.oz) || 0) + ' oz</td>' +
+        '<td><button class="row-del" data-id="' + r.id + '" title="Delete">&times;</button></td>';
+      body.appendChild(tr);
+    });
+    body.querySelectorAll(".row-del").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-id");
+        water = water.filter(function (r) { return String(r.id) !== String(id); });
+        saveJSON(WATER_KEY, water);
+        renderWater();
+      });
+    });
+  }
+
+  function addWater(oz) {
+    if (!(oz > 0)) return;
+    var now = new Date();
+    water.push({ id: Date.now(), date: waterDay(), oz: Math.round(oz * 10) / 10,
+      time: String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0") });
+    saveJSON(WATER_KEY, water);
+    renderWater();
+  }
+
+  document.getElementById("waterDate").value = isoDay(new Date());
+  document.getElementById("waterDate").addEventListener("change", renderWater);
+  document.querySelectorAll("#waterSection [data-oz]").forEach(function (b) {
+    b.addEventListener("click", function () { addWater(parseFloat(b.getAttribute("data-oz"))); });
+  });
+  document.getElementById("waterUndo").addEventListener("click", function () {
+    var day = waterDay();
+    var last = water.filter(function (r) { return r.date === day; })
+      .sort(function (a, b) { return b.id - a.id; })[0];
+    if (!last) return;
+    water = water.filter(function (r) { return r !== last; });
+    saveJSON(WATER_KEY, water);
+    renderWater();
+  });
+  document.getElementById("waterForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var oz = parseFloat(document.getElementById("waterOz").value);
+    if (!(oz > 0)) { alert("Enter how many ounces you drank."); return; }
+    addWater(oz);
+    document.getElementById("waterOz").value = "";
+  });
+  document.getElementById("waterGoalForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var g = parseFloat(document.getElementById("waterGoal").value);
+    if (!(g > 0)) { alert("Enter a daily goal in ounces."); return; }
+    try { localStorage.setItem(WATER_GOAL_KEY, String(g)); } catch (err) { /* ignore */ }
+    document.getElementById("waterGoal").blur();
+    renderWater();
+  });
+
   // ---------- Overhaul progress (combined dashboard) ----------
   function monthKey(dateStr) { return dateStr.slice(0, 7); }
 
@@ -1998,7 +2533,7 @@ h2 .hint { margin: 0; }
     // Title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    doc.text("MYND Fitness Run Log", left, y);
+    doc.text("MYND-Fitness Run Logs", left, y);
     y += 18;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
@@ -2008,10 +2543,10 @@ h2 .hint { margin: 0; }
     y += 26;
 
     // Races
-    heading("Upcoming races");
+    heading("Races");
     RACES.forEach(function (race) {
       var days = daysBetween(race.date);
-      var label = days < 0 ? (Math.abs(days) + " days ago") : (days === 0 ? "today" : (days + " days to go"));
+      var label = days < 0 ? ("completed" + (photoFor(race) ? " (photo attached)" : "")) : (days === 0 ? "today" : (days + " days to go"));
       row(race.name + "  —  " + fmtDateDisplay(race.date) + "  —  " + label);
     });
     y += 10;
@@ -2100,76 +2635,6 @@ h2 .hint { margin: 0; }
     setTimeout(function () { statusEl.textContent = ""; }, 4000);
   });
 
-  // ---------- Target paces ----------
-  function parseRange(str) {
-    if (!str) return null;
-    var parts = str.split(/[-\u2013]/).map(function (p) { return parseTimeToSeconds(p); });
-    if (parts.length === 1 && parts[0]) return [parts[0], parts[0]];
-    if (parts.length === 2 && parts[0] && parts[1]) return [Math.min(parts[0], parts[1]), Math.max(parts[0], parts[1])];
-    return null;
-  }
-  function rangeText(r) { return formatPace(r[0]) + (r[0] === r[1] ? "" : "\u2013" + formatPace(r[1])); }
-  function renderTargets() {
-    var ids = { "5K": "t5k", "8K": "t8k", "10K": "t10k" };
-    var bits = [];
-    ["5K", "8K", "10K"].forEach(function (k) {
-      var r = TARGETS[k];
-      document.getElementById(ids[k]).value = r ? rangeText(r) : "";
-      if (r) bits.push(k + " target: " + rangeText(r) + " /mi");
-    });
-    document.getElementById("targetRef").textContent = bits.length ? bits.join("  \u00b7  ") : "Set your target paces below to see on-target badges in your run history.";
-  }
-  document.getElementById("targetForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var ids = { "5K": "t5k", "8K": "t8k", "10K": "t10k" };
-    var bad = [];
-    Object.keys(ids).forEach(function (k) {
-      var v = document.getElementById(ids[k]).value.trim();
-      if (!v) { delete TARGETS[k]; return; }
-      var r = parseRange(v);
-      if (r) TARGETS[k] = r; else bad.push(k);
-    });
-    if (bad.length) { alert("Couldn't read the " + bad.join(", ") + " pace. Use a format like 9:00-9:30."); return; }
-    saveJSON(TARGETS_KEY, TARGETS);
-    renderTargets();
-    renderRuns();
-  });
-
-  // ---------- Backup / restore ----------
-  var ALL_KEYS = [RUNS_KEY, WEIGHT_KEY, BP_KEY, BOOTCAMP_KEY, TARGETS_KEY, RACES_KEY, WEEK_KEY, PLAN_KEY];
-  document.getElementById("backupBtn").addEventListener("click", async function () {
-    var data = { app: "mynd-fitness", version: 1, exported: new Date().toISOString(), data: {} };
-    ALL_KEYS.forEach(function (k) {
-      try { var raw = localStorage.getItem(k); if (raw) data.data[k] = JSON.parse(raw); } catch (e) {}
-    });
-    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    var result = await saveFile("mynd-fitness-backup-" + new Date().toISOString().slice(0, 10) + ".json", blob);
-    var statusEl = document.getElementById("exportStatus");
-    statusEl.textContent = result === "saved" ? "Backup saved." : "Could not save the backup.";
-    setTimeout(function () { statusEl.textContent = ""; }, 4000);
-  });
-  document.getElementById("restoreBtn").addEventListener("click", function () {
-    document.getElementById("restoreFile").click();
-  });
-  document.getElementById("restoreFile").addEventListener("change", function (e) {
-    var file = e.target.files[0];
-    if (!file) return;
-    readFileText(file, function (text) {
-      try {
-        var parsed = JSON.parse(text);
-        if (!parsed || parsed.app !== "mynd-fitness" || !parsed.data) throw new Error("bad");
-        if (!confirm("Replace the data in this browser with this backup?")) return;
-        ALL_KEYS.forEach(function (k) {
-          if (parsed.data[k] !== undefined) localStorage.setItem(k, JSON.stringify(parsed.data[k]));
-        });
-        location.reload();
-      } catch (err) {
-        alert("That file isn't a MYND Fitness backup.");
-      }
-      e.target.value = "";
-    });
-  });
-
   // ---------- Init ----------
   document.getElementById("rDate").valueAsDate = new Date();
   document.getElementById("wDate").valueAsDate = new Date();
@@ -2178,12 +2643,13 @@ h2 .hint { margin: 0; }
 
   renderRaces();
   renderWeek();
-  renderTargets();
   renderRuns();
   renderWeight();
   renderBP();
   renderBootcamp();
+  renderWater();
   renderProgress();
+  initCloud();
 })();
 </script>
 </body>
